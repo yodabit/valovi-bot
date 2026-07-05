@@ -1,0 +1,2 @@
+# valovi-bot
+Trading bot
