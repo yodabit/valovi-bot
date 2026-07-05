@@ -25,19 +25,55 @@ STATE_FILE = "state.json"
 
 
 # ---------------- podaci ----------------
-def fetch_closes(symbol, limit=120):
-    """Dnevne zavrsne cijene s CryptoCompare (besplatno, radi bez kljuca)."""
-    url = "https://min-api.cryptocompare.com/data/v2/histoday"
-    r = requests.get(url, params={"fsym": symbol, "tsym": "USD", "limit": limit},
-                     timeout=20)
+COINGECKO_IDS = {
+    "BTC": "bitcoin", "ETH": "ethereum", "SOL": "solana", "XRP": "ripple",
+    "BNB": "binancecoin", "DOGE": "dogecoin", "ADA": "cardano",
+    "AVAX": "avalanche-2", "LINK": "chainlink", "DOT": "polkadot",
+}
+HEADERS = {"User-Agent": "valovi-bot"}
+
+
+def _closes_coinbase(sym):
+    r = requests.get(f"https://api.exchange.coinbase.com/products/{sym}-USD/candles",
+                     params={"granularity": 86400}, timeout=20, headers=HEADERS)
     r.raise_for_status()
-    data = r.json()
-    if data.get("Response") != "Success":
-        raise RuntimeError(f"CryptoCompare greska za {symbol}: {data.get('Message')}")
-    closes = [c["close"] for c in data["Data"]["Data"] if c["close"] > 0]
-    if len(closes) < 40:
-        raise RuntimeError(f"Premalo podataka za {symbol}")
-    return closes
+    candles = sorted(r.json(), key=lambda c: c[0])  # najstarije prvo
+    return [float(c[4]) for c in candles]
+
+
+def _closes_kraken(sym):
+    r = requests.get("https://api.kraken.com/0/public/OHLC",
+                     params={"pair": f"{sym}USD", "interval": 1440},
+                     timeout=20, headers=HEADERS)
+    r.raise_for_status()
+    j = r.json()
+    if j.get("error"):
+        raise RuntimeError(",".join(j["error"]))
+    key = next(k for k in j["result"] if k != "last")
+    return [float(c[4]) for c in j["result"][key]]
+
+
+def _closes_coingecko(sym):
+    r = requests.get(
+        f"https://api.coingecko.com/api/v3/coins/{COINGECKO_IDS[sym]}/market_chart",
+        params={"vs_currency": "usd", "days": 120, "interval": "daily"},
+        timeout=20, headers=HEADERS)
+    r.raise_for_status()
+    return [float(p[1]) for p in r.json()["prices"]]
+
+
+def fetch_closes(symbol, limit=120):
+    """Dnevne zavrsne cijene — proba izvore redom dok jedan ne uspije."""
+    last_err = None
+    for source in (_closes_coinbase, _closes_kraken, _closes_coingecko):
+        try:
+            closes = [c for c in source(symbol) if c and c > 0][-limit:]
+            if len(closes) >= 40:
+                return closes
+            last_err = RuntimeError("premalo podataka")
+        except Exception as e:
+            last_err = e
+    raise RuntimeError(f"nijedan izvor nije uspio ({last_err})")
 
 
 # ---------------- indikatori ----------------
@@ -150,7 +186,7 @@ def main():
         elif sig in ("long", "short"):
             open_position(state, sym, sig, price)
 
-        time.sleep(0.3)  # pristojan razmak izmedu poziva
+        time.sleep(0.5)  # pristojan razmak izmedu poziva
 
     # tocka na krivulji kapitala
     unreal = sum(unrealized(p, prices.get(s, p["entry"]))
