@@ -1,13 +1,79 @@
 {
  "cash": 10000.0,
- "positions": {},
+ "positions": {
+  "BTC": {
+   "side": "short",
+   "entry": 62576.36,
+   "opened": "05.07. 16:50 UTC"
+  },
+  "ETH": {
+   "side": "long",
+   "entry": 1769.89,
+   "opened": "05.07. 16:50 UTC"
+  },
+  "SOL": {
+   "side": "long",
+   "entry": 80.91,
+   "opened": "05.07. 16:50 UTC"
+  },
+  "XRP": {
+   "side": "short",
+   "entry": 1.1345,
+   "opened": "05.07. 16:50 UTC"
+  },
+  "BNB": {
+   "side": "short",
+   "entry": 585.47,
+   "opened": "05.07. 16:50 UTC"
+  },
+  "DOGE": {
+   "side": "short",
+   "entry": 0.07691,
+   "opened": "05.07. 16:50 UTC"
+  },
+  "ADA": {
+   "side": "long",
+   "entry": 0.1899,
+   "opened": "05.07. 16:50 UTC"
+  },
+  "AVAX": {
+   "side": "long",
+   "entry": 6.92,
+   "opened": "05.07. 16:50 UTC"
+  },
+  "LINK": {
+   "side": "short",
+   "entry": 7.944,
+   "opened": "05.07. 16:50 UTC"
+  },
+  "DOT": {
+   "side": "short",
+   "entry": 0.874,
+   "opened": "05.07. 16:50 UTC"
+  }
+ },
  "trades": [],
  "eq": [
   {
    "t": 1783269104770,
    "v": 10000.0
+  },
+  {
+   "t": 1783270226826,
+   "v": 10000.0
   }
  ],
- "last_run": "05.07. 16:31 UTC",
- "last_prices": {}
+ "last_run": "05.07. 16:50 UTC",
+ "last_prices": {
+  "BTC": 62576.36,
+  "ETH": 1769.89,
+  "SOL": 80.91,
+  "XRP": 1.1345,
+  "BNB": 585.47,
+  "DOGE": 0.07691,
+  "ADA": 0.1899,
+  "AVAX": 6.92,
+  "LINK": 7.944,
+  "DOT": 0.874
+ }
 }
