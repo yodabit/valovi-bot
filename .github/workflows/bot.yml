@@ -1,0 +1,36 @@
+name: Valovi bot
+
+on:
+  schedule:
+    - cron: "17 * * * *"   # svaki sat u xx:17 (izbjegava guzvu na punom satu)
+  workflow_dispatch: {}     # gumb za rucno pokretanje
+
+permissions:
+  contents: write           # dozvola da bot spremi state.json natrag u repozitorij
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preuzmi kod
+        uses: actions/checkout@v4
+
+      - name: Pripremi Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instaliraj pakete
+        run: pip install -r requirements.txt
+
+      - name: Pokreni bota
+        run: python bot.py
+
+      - name: Spremi novo stanje
+        run: |
+          git config user.name "valovi-bot"
+          git config user.email "valovi-bot@users.noreply.github.com"
+          git add state.json
+          git commit -m "bot: azuriranje stanja" || echo "nema promjena"
+          git pull --rebase origin main || true
+          git push
