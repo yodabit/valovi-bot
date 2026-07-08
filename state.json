@@ -1,5 +1,5 @@
 {
- "cash": 9969.451456422496,
+ "cash": 9931.524288792438,
  "positions": {
   "BTC": {
    "side": "short",
@@ -36,11 +36,6 @@
    "entry": 0.1899,
    "opened": "05.07. 16:50 UTC"
   },
-  "AVAX": {
-   "side": "long",
-   "entry": 6.92,
-   "opened": "05.07. 16:50 UTC"
-  },
   "DOT": {
    "side": "short",
    "entry": 0.874,
@@ -50,9 +45,24 @@
    "side": "long",
    "entry": 8.01,
    "opened": "06.07. 16:31 UTC"
+  },
+  "AVAX": {
+   "side": "short",
+   "entry": 6.67,
+   "opened": "08.07. 00:13 UTC"
   }
  },
  "trades": [
+  {
+   "time": "08.07. 00:13 UTC",
+   "sym": "AVAX",
+   "side": "long",
+   "entry": 6.92,
+   "exit": 6.67,
+   "pl": -37.93,
+   "plPct": -3.79,
+   "why": "val se okrenuo"
+  },
   {
    "time": "06.07. 16:31 UTC",
    "sym": "LINK",
@@ -168,19 +178,23 @@
   {
    "t": 1783463576631,
    "v": 9911.4
+  },
+  {
+   "t": 1783469628880,
+   "v": 9912.63
   }
  ],
- "last_run": "07.07. 22:32 UTC",
+ "last_run": "08.07. 00:13 UTC",
  "last_prices": {
-  "BTC": 63392.97,
-  "ETH": 1770.6,
-  "SOL": 80.73,
-  "XRP": 1.1139,
-  "BNB": 577.98,
-  "DOGE": 0.07409,
-  "ADA": 0.1742,
-  "AVAX": 6.69,
-  "LINK": 7.831,
-  "DOT": 0.85
+  "BTC": 63403.64,
+  "ETH": 1772.15,
+  "SOL": 80.63,
+  "XRP": 1.1125,
+  "BNB": 576.36,
+  "DOGE": 0.07426,
+  "ADA": 0.1749,
+  "AVAX": 6.67,
+  "LINK": 7.848,
+  "DOT": 0.851
  }
 }
