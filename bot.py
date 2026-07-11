@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-VALOVI BOT — oblak verzija (GitHub Actions)
-Ista strategija kao na dashboardu: EMA 9/21 presjek + RSI(14) filter,
-dnevne svijece, 10 glavnih tokena, virtualni novac (10.000 $ start).
+VALOVI BOT v2 — oblak verzija s DVA portfelja (A/B test strategija)
 
-Bot se pokrece svaki sat, procita svoje prethodno stanje iz state.json,
-provjeri signale, otvori/zatvori virtualne pozicije i spremi novo stanje.
-Nista ovdje nije pravi novac i nema API kljuceva.
+TREND portfelj: originalna logika — LONG kad val ide gore, SHORT kad ide dolje
+KONTRA portfelj: identicni signali, SUPROTNA strana — gdje trend kupuje, kontra shorta
+
+Oba igraju s vlastitih 10.000 virtualnih $, istim ulozima (1.000 $) i istim
+naknadama, na istim podacima u istom trenutku — cist A/B eksperiment.
+Postojeca povijest starog bota nastavlja zivjeti kao TREND portfelj.
 """
 
 import json
@@ -16,12 +17,12 @@ from datetime import datetime, timezone
 
 import requests
 
-# ---------------- postavke ----------------
 COINS = ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "LINK", "DOT"]
 START_CASH = 10000.0
-POS_SIZE = 1000.0      # $ po poziciji (virtualno)
-FEE = 0.0009           # 0,09 % po strani (kao Revolut X taker)
+POS_SIZE = 1000.0
+FEE = 0.0009
 STATE_FILE = "state.json"
+PORTS = ["trend", "kontra"]
 
 
 # ---------------- podaci ----------------
@@ -37,7 +38,7 @@ def _closes_coinbase(sym):
     r = requests.get(f"https://api.exchange.coinbase.com/products/{sym}-USD/candles",
                      params={"granularity": 86400}, timeout=20, headers=HEADERS)
     r.raise_for_status()
-    candles = sorted(r.json(), key=lambda c: c[0])  # najstarije prvo
+    candles = sorted(r.json(), key=lambda c: c[0])
     return [float(c[4]) for c in candles]
 
 
@@ -63,7 +64,6 @@ def _closes_coingecko(sym):
 
 
 def fetch_closes(symbol, limit=120):
-    """Dnevne zavrsne cijene — proba izvore redom dok jedan ne uspije."""
     last_err = None
     for source in (_closes_coinbase, _closes_kraken, _closes_coingecko):
         try:
@@ -106,27 +106,38 @@ def rsi(closes, period=14):
 
 
 def signal(closes):
-    """Vraca ('long'|'short'|'wait', objasnjenje)."""
     e9, e21 = ema(closes, 9), ema(closes, 21)
     r = rsi(closes)
     up, up_prev = e9[-1] > e21[-1], e9[-2] > e21[-2]
     if up and r < 72:
-        why = ("svjezi presjek gore" if not up_prev else "uzlazni val traje")
-        return "long", why
+        return "long", ("svjezi presjek gore" if not up_prev else "uzlazni val traje")
     if not up and r > 28:
-        why = ("svjezi presjek dolje" if up_prev else "silazni val traje")
-        return "short", why
+        return "short", ("svjezi presjek dolje" if up_prev else "silazni val traje")
     if up:
         return "wait", f"trend gore ali RSI {r:.0f} pregrijan"
     return "wait", f"trend dolje ali RSI {r:.0f} rasprodan"
 
 
 # ---------------- stanje ----------------
-def load_state():
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, encoding="utf-8") as f:
-            return json.load(f)
+def blank_port():
     return {"cash": START_CASH, "positions": {}, "trades": [], "eq": []}
+
+
+def load_state():
+    if not os.path.exists(STATE_FILE):
+        return {"port": {p: blank_port() for p in PORTS}}
+    with open(STATE_FILE, encoding="utf-8") as f:
+        s = json.load(f)
+    if "port" not in s:   # migracija: stari bot postaje TREND portfelj
+        s = {"port": {
+            "trend": {"cash": s.get("cash", START_CASH),
+                      "positions": s.get("positions", {}),
+                      "trades": s.get("trades", []),
+                      "eq": s.get("eq", [])},
+            "kontra": blank_port(),
+        }}
+        print("Migracija: stara povijest nastavlja kao TREND portfelj, KONTRA krece svjeze")
+    return s
 
 
 def save_state(state):
@@ -143,22 +154,25 @@ def now_str():
     return datetime.now(timezone.utc).strftime("%d.%m. %H:%M UTC")
 
 
-def close_position(state, sym, price, why):
-    pos = state["positions"].pop(sym)
+def close_position(port, name, sym, price, why):
+    pos = port["positions"].pop(sym)
     pl = unrealized(pos, price) - POS_SIZE * FEE * 2
-    state["cash"] += pl
-    state["trades"].insert(0, {
+    port["cash"] += pl
+    port["trades"].insert(0, {
         "time": now_str(), "sym": sym, "side": pos["side"],
         "entry": pos["entry"], "exit": price,
         "pl": round(pl, 2), "plPct": round(pl / POS_SIZE * 100, 2), "why": why,
     })
-    del state["trades"][200:]
-    print(f"  ZATVOREN {pos['side'].upper()} {sym} @ {price:.4f}  P/L {pl:+.2f} $  ({why})")
+    del port["trades"][200:]
+    print(f"  [{name}] ZATVOREN {pos['side'].upper()} {sym} @ {price:.4f}  P/L {pl:+.2f} $  ({why})")
 
 
-def open_position(state, sym, side, price):
-    state["positions"][sym] = {"side": side, "entry": price, "opened": now_str()}
-    print(f"  OTVOREN {side.upper()} {sym} @ {price:.4f}")
+def open_position(port, name, sym, side, price):
+    port["positions"][sym] = {"side": side, "entry": price, "opened": now_str()}
+    print(f"  [{name}] OTVOREN {side.upper()} {sym} @ {price:.4f}")
+
+
+FLIP = {"long": "short", "short": "long", "wait": "wait"}
 
 
 # ---------------- glavni ciklus ----------------
@@ -169,42 +183,43 @@ def main():
     for sym in COINS:
         try:
             closes = fetch_closes(sym)
-        except Exception as e:  # jedan token ne smije srusiti cijeli ciklus
+        except Exception as e:
             print(f"  ! preskacem {sym}: {e}")
             continue
         price = closes[-1]
         prices[sym] = price
         sig, why = signal(closes)
-        pos = state["positions"].get(sym)
 
-        if pos:
-            if sig == "wait":
-                close_position(state, sym, price, "signal pao na CEKAJ")
-            elif sig != pos["side"]:
-                close_position(state, sym, price, "val se okrenuo")
-                open_position(state, sym, sig, price)
-        elif sig in ("long", "short"):
-            open_position(state, sym, sig, price)
+        for name in PORTS:
+            port = state["port"][name]
+            want = sig if name == "trend" else FLIP[sig]
+            pos = port["positions"].get(sym)
+            if pos:
+                if want == "wait":
+                    close_position(port, name, sym, price, "signal pao na CEKAJ")
+                elif want != pos["side"]:
+                    close_position(port, name, sym, price, "val se okrenuo")
+                    open_position(port, name, sym, want, price)
+            elif want in ("long", "short"):
+                open_position(port, name, sym, want, price)
 
-        time.sleep(0.5)  # pristojan razmak izmedu poziva
+        time.sleep(0.5)
 
-    # tocka na krivulji kapitala
-    unreal = sum(unrealized(p, prices.get(s, p["entry"]))
-                 for s, p in state["positions"].items())
-    equity = state["cash"] + unreal
-    state["eq"].append({"t": int(time.time() * 1000), "v": round(equity, 2)})
-    del state["eq"][:-1000]
+    for name in PORTS:
+        port = state["port"][name]
+        unreal = sum(unrealized(p, prices.get(s, p["entry"]))
+                     for s, p in port["positions"].items())
+        equity = port["cash"] + unreal
+        port["eq"].append({"t": int(time.time() * 1000), "v": round(equity, 2)})
+        del port["eq"][:-1000]
+        wins = sum(1 for t in port["trades"] if t["pl"] > 0)
+        total = len(port["trades"])
+        wr = f"{100*wins/total:.0f} %" if total else "-"
+        print(f"[{name.upper():6s}] kapital {equity:,.2f} $ | trejdova {total} | win rate {wr}")
+
     state["last_run"] = now_str()
     state["last_prices"] = {s: round(p, 6) for s, p in prices.items()}
-
     save_state(state)
-
-    wins = sum(1 for t in state["trades"] if t["pl"] > 0)
-    total = len(state["trades"])
-    print(f"\nKapital: {equity:,.2f} $ | realizirano: {state['cash']-START_CASH:+,.2f} $ | "
-          f"otvoreno: {len(state['positions'])} | trejdova: {total} | "
-          f"win rate: {100*wins/total:.0f} %" if total else
-          f"\nKapital: {equity:,.2f} $ | jos nema zatvorenih trejdova")
 
 
 if __name__ == "__main__":
