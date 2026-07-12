@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-VALOVI BOT v2 — oblak verzija s DVA portfelja (A/B test strategija)
+VALOVI BOT v3 — dva portfelja (TREND/KONTRA) + kontrola rizika
 
-TREND portfelj: originalna logika — LONG kad val ide gore, SHORT kad ide dolje
-KONTRA portfelj: identicni signali, SUPROTNA strana — gdje trend kupuje, kontra shorta
-
-Oba igraju s vlastitih 10.000 virtualnih $, istim ulozima (1.000 $) i istim
-naknadama, na istim podacima u istom trenutku — cist A/B eksperiment.
-Postojeca povijest starog bota nastavlja zivjeti kao TREND portfelj.
+Novo u v3 (vrijedi za OBA portfelja, ukljucujuci postojece pozicije):
+ - STOP-LOSS: -8 % od ulaza — nijedna pozicija ne moze izgubiti vise od ~80 $
+ - ZAKLJUCAVANJE: kad pozicija dosegne +3 %, stop skace na ulaznu cijenu
+   (break-even) — dobitnik se vise ne moze pretvoriti u znacajan gubitnik
+ - TRAILING: iznad +3 % stop prati cijenu na razmaku od 4 % — dobit se
+   zakljucava sve vise dok val traje
+Napomena: cijene se provjeravaju jednom na sat, pa se stop izvrsava po
+cijeni sljedece provjere (moguce malo proklizavanje kod naglih skokova).
 """
 
 import json
@@ -21,6 +23,9 @@ COINS = ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "LINK", "DOT"
 START_CASH = 10000.0
 POS_SIZE = 1000.0
 FEE = 0.0009
+STOP_LOSS = 0.08       # pocetni stop: -8 % od ulaza
+LOCK_AT = 0.03         # na +3 % stop skace na break-even
+TRAIL = 0.04           # iznad toga stop prati cijenu na 4 % razmaka
 STATE_FILE = "state.json"
 PORTS = ["trend", "kontra"]
 
@@ -128,7 +133,7 @@ def load_state():
         return {"port": {p: blank_port() for p in PORTS}}
     with open(STATE_FILE, encoding="utf-8") as f:
         s = json.load(f)
-    if "port" not in s:   # migracija: stari bot postaje TREND portfelj
+    if "port" not in s:
         s = {"port": {
             "trend": {"cash": s.get("cash", START_CASH),
                       "positions": s.get("positions", {}),
@@ -136,7 +141,7 @@ def load_state():
                       "eq": s.get("eq", [])},
             "kontra": blank_port(),
         }}
-        print("Migracija: stara povijest nastavlja kao TREND portfelj, KONTRA krece svjeze")
+        print("Migracija: stara povijest nastavlja kao TREND, KONTRA krece svjeze")
     return s
 
 
@@ -154,6 +159,36 @@ def now_str():
     return datetime.now(timezone.utc).strftime("%d.%m. %H:%M UTC")
 
 
+def init_stop(pos):
+    """Pocetni stop na -8 % od ulaza (ako ga pozicija jos nema)."""
+    if "stop" not in pos:
+        if pos["side"] == "long":
+            pos["stop"] = pos["entry"] * (1 - STOP_LOSS)
+        else:
+            pos["stop"] = pos["entry"] * (1 + STOP_LOSS)
+
+
+def update_trailing(pos, price):
+    """Na +3 % stop skace na break-even; iznad toga prati cijenu na 4 %."""
+    if pos["side"] == "long":
+        if price >= pos["entry"] * (1 + LOCK_AT):
+            pos["stop"] = max(pos["stop"], pos["entry"], price * (1 - TRAIL))
+    else:
+        if price <= pos["entry"] * (1 - LOCK_AT):
+            pos["stop"] = min(pos["stop"], pos["entry"], price * (1 + TRAIL))
+
+
+def stop_hit(pos, price):
+    return price <= pos["stop"] if pos["side"] == "long" else price >= pos["stop"]
+
+
+def stop_reason(pos):
+    """Je li stop ispod/iznad ulaza (gubitak) ili zakljucana dobit."""
+    if pos["side"] == "long":
+        return "trailing stop — dobit zakljucana" if pos["stop"] >= pos["entry"] else "stop-loss -8 %"
+    return "trailing stop — dobit zakljucana" if pos["stop"] <= pos["entry"] else "stop-loss -8 %"
+
+
 def close_position(port, name, sym, price, why):
     pos = port["positions"].pop(sym)
     pl = unrealized(pos, price) - POS_SIZE * FEE * 2
@@ -168,8 +203,10 @@ def close_position(port, name, sym, price, why):
 
 
 def open_position(port, name, sym, side, price):
-    port["positions"][sym] = {"side": side, "entry": price, "opened": now_str()}
-    print(f"  [{name}] OTVOREN {side.upper()} {sym} @ {price:.4f}")
+    pos = {"side": side, "entry": price, "opened": now_str()}
+    init_stop(pos)
+    port["positions"][sym] = pos
+    print(f"  [{name}] OTVOREN {side.upper()} {sym} @ {price:.4f}  (stop {pos['stop']:.4f})")
 
 
 FLIP = {"long": "short", "short": "long", "wait": "wait"}
@@ -194,7 +231,13 @@ def main():
             port = state["port"][name]
             want = sig if name == "trend" else FLIP[sig]
             pos = port["positions"].get(sym)
+
             if pos:
+                init_stop(pos)              # postojece pozicije dobivaju stop
+                update_trailing(pos, price)
+                if stop_hit(pos, price):    # kontrola rizika ima prednost
+                    close_position(port, name, sym, price, stop_reason(pos))
+                    continue
                 if want == "wait":
                     close_position(port, name, sym, price, "signal pao na CEKAJ")
                 elif want != pos["side"]:
