@@ -30,7 +30,8 @@ jobs:
         run: |
           git config user.name "valovi-bot"
           git config user.email "valovi-bot@users.noreply.github.com"
-          git add state.json commands.json
+          git add state.json
+          git add commands.json || true
           git commit -m "bot: azuriranje stanja" || echo "nema promjena"
           git pull --rebase origin main || true
           git push
