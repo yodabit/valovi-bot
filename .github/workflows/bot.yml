@@ -2,11 +2,11 @@ name: Valovi bot
 
 on:
   schedule:
-    - cron: "17 * * * *"   # svaki sat u xx:17 (izbjegava guzvu na punom satu)
-  workflow_dispatch: {}     # gumb za rucno pokretanje
+    - cron: "17 * * * *"   # svaki sat u xx:17
+  workflow_dispatch: {}     # gumb + budjenje s ploce (TOMO nalozi)
 
 permissions:
-  contents: write           # dozvola da bot spremi state.json natrag u repozitorij
+  contents: write
 
 jobs:
   run-bot:
@@ -30,7 +30,7 @@ jobs:
         run: |
           git config user.name "valovi-bot"
           git config user.email "valovi-bot@users.noreply.github.com"
-          git add state.json
+          git add state.json commands.json
           git commit -m "bot: azuriranje stanja" || echo "nema promjena"
           git pull --rebase origin main || true
           git push
