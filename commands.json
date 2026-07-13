@@ -3,6 +3,10 @@
   {
    "sym": "XRP",
    "type": "market"
+  },
+  {
+   "sym": "BNB",
+   "type": "market"
   }
  ]
 }
