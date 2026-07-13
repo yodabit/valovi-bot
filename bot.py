@@ -226,6 +226,27 @@ def open_position(port, name, sym, side, price):
     print(f"  [{name}] OTVOREN {side.upper()} {sym} @ {price:.4f}  (stop {pos['stop']:.4f})")
 
 
+
+def repair_bogus_limit_trades(state):
+    """Ponisti trejdove nastale starim bugom (limit izvrsen po upisanom broju
+    umjesto po trzistu). Prepoznaje ih po razlogu 'limit nalog izvrsen' i
+    apsurdnom gubitku (<= -50 %) — s v4.1+ kodom takvi vise ne mogu nastati."""
+    tomo = state["port"].get("tomo")
+    if not tomo:
+        return
+    bad = [t for t in tomo.get("trades", [])
+           if "limit nalog izvrsen" in t.get("why", "") and t.get("plPct", 0) <= -50]
+    for t in bad:
+        tomo["cash"] -= t["pl"]                       # vrati novac (pl je negativan)
+        tomo["trades"].remove(t)
+        pos = {"side": t["side"], "entry": t["entry"], "opened": t["time"]}
+        init_stop(pos)
+        tomo["positions"][t["sym"]] = pos             # vrati poziciju
+        tomo.get("muted", {}).pop(t["sym"], None)
+        print(f"  [tomo] POPRAVAK: ponisten laznii trejd {t['sym']} "
+              f"({t['pl']} $), pozicija vracena @ {t['entry']}")
+
+
 FLIP = {"long": "short", "short": "long", "wait": "wait"}
 
 
@@ -252,6 +273,7 @@ def process_commands(state):
 
 def main():
     state = load_state()
+    repair_bogus_limit_trades(state)
     process_commands(state)
     tomo = state["port"]["tomo"]
     tomo.setdefault("limits", {})
@@ -288,7 +310,9 @@ def main():
                     if lim is not None:
                         hit = price >= lim if pos["side"] == "long" else price <= lim
                         if hit:
-                            close_position(port, name, sym, lim, "limit nalog izvrsen (TOMO)")
+                            # izvrsi po stvarnoj trenutnoj cijeni (satna provjera);
+                            # stiti od krivo upisanog limita — ne moze biti gore od trzista
+                            close_position(port, name, sym, price, "limit nalog izvrsen (TOMO)")
                             tomo["muted"][sym] = pos["side"]
                             tomo["limits"].pop(sym, None)
                             continue
