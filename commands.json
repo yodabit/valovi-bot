@@ -7,6 +7,10 @@
   {
    "sym": "BNB",
    "type": "market"
+  },
+  {
+   "sym": "DOGE",
+   "type": "market"
   }
  ]
 }
