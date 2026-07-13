@@ -510,6 +510,10 @@
     {
      "t": 1783966858639,
      "v": 9857.19
+    },
+    {
+     "t": 1783966936445,
+     "v": 9858.7
     }
    ]
   },
@@ -705,11 +709,15 @@
     {
      "t": 1783966858639,
      "v": 9929.73
+    },
+    {
+     "t": 1783966936445,
+     "v": 9928.25
     }
    ]
   },
   "tomo": {
-   "cash": 10044.463390611014,
+   "cash": 10088.44078183232,
    "positions": {
     "ETH": {
      "side": "long",
@@ -722,24 +730,6 @@
      "entry": 76.6,
      "opened": "13.07. 09:43 UTC",
      "stop": 70.472
-    },
-    "XRP": {
-     "side": "short",
-     "entry": 1.0794,
-     "opened": "13.07. 09:43 UTC",
-     "stop": 1.165752
-    },
-    "BNB": {
-     "side": "short",
-     "entry": 569.41,
-     "opened": "13.07. 09:43 UTC",
-     "stop": 614.9628
-    },
-    "DOGE": {
-     "side": "short",
-     "entry": 0.07232,
-     "opened": "13.07. 09:43 UTC",
-     "stop": 0.0781056
     },
     "LINK": {
      "side": "long",
@@ -761,6 +751,36 @@
     }
    },
    "trades": [
+    {
+     "time": "13.07. 18:22 UTC",
+     "sym": "DOGE",
+     "side": "short",
+     "entry": 0.07232,
+     "exit": 0.07099,
+     "pl": 16.59,
+     "plPct": 1.66,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "13.07. 18:22 UTC",
+     "sym": "BNB",
+     "side": "short",
+     "entry": 569.41,
+     "exit": 562.58,
+     "pl": 10.19,
+     "plPct": 1.02,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "13.07. 18:22 UTC",
+     "sym": "XRP",
+     "side": "short",
+     "entry": 1.0794,
+     "exit": 1.0589,
+     "pl": 17.19,
+     "plPct": 1.72,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
     {
      "time": "13.07. 18:20 UTC",
      "sym": "ADA",
@@ -822,16 +842,23 @@
     {
      "t": 1783966858639,
      "v": 10017.25
+    },
+    {
+     "t": 1783966936445,
+     "v": 10011.85
     }
    ],
    "limits": {},
    "muted": {
     "AVAX": "short",
-    "ADA": "short"
+    "ADA": "short",
+    "XRP": "short",
+    "BNB": "short",
+    "DOGE": "short"
    }
   }
  },
- "last_run": "13.07. 18:20 UTC",
+ "last_run": "13.07. 18:22 UTC",
  "last_prices": {
   "BTC": 61839.73,
   "ETH": 1754.4,
@@ -840,7 +867,7 @@
   "BNB": 562.58,
   "DOGE": 0.07099,
   "ADA": 0.157,
-  "AVAX": 6.43,
+  "AVAX": 6.42,
   "LINK": 7.803,
   "DOT": 0.827
  }
