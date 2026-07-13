@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 """
-VALOVI BOT v3 — dva portfelja (TREND/KONTRA) + kontrola rizika
+VALOVI BOT v4 — tri portfelja: TREND, KONTRA i TOMO
 
-Novo u v3 (vrijedi za OBA portfelja, ukljucujuci postojece pozicije):
- - STOP-LOSS: -8 % od ulaza — nijedna pozicija ne moze izgubiti vise od ~80 $
- - ZAKLJUCAVANJE: kad pozicija dosegne +3 %, stop skace na ulaznu cijenu
-   (break-even) — dobitnik se vise ne moze pretvoriti u znacajan gubitnik
- - TRAILING: iznad +3 % stop prati cijenu na razmaku od 4 % — dobit se
-   zakljucava sve vise dok val traje
-Napomena: cijene se provjeravaju jednom na sat, pa se stop izvrsava po
-cijeni sljedece provjere (moguce malo proklizavanje kod naglih skokova).
+TREND : original — ulazi i izlazi po signalima + stop/trailing (v3)
+KONTRA: suprotna strana signala + stop/trailing (v3)
+TOMO  : ulazi kao TREND, ali IZLAZI SU RUCNI — Tomo s ploce salje naloge
+        (market = odmah po sljedecem krugu; limit = kad cijena dosegne cilj).
+        Sigurnosna mreza ostaje: stop-loss -8 % i trailing zakljucavanje.
+        Nakon rucnog zatvaranja bot taj token ne otvara ponovno dok se
+        signal ne promijeni (da ruka ima smisla).
+
+Nalozi s ploce stizu kroz commands.json:
+  {"cmds":[{"sym":"BTC","type":"market"} , {"sym":"ETH","type":"limit","price":1900}]}
+Bot ih obradi i isprazni datoteku. Limit nalozi cekaju u state-u.
 """
 
 import json
@@ -23,11 +26,12 @@ COINS = ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "LINK", "DOT"
 START_CASH = 10000.0
 POS_SIZE = 1000.0
 FEE = 0.0009
-STOP_LOSS = 0.08       # pocetni stop: -8 % od ulaza
-LOCK_AT = 0.03         # na +3 % stop skace na break-even
-TRAIL = 0.04           # iznad toga stop prati cijenu na 4 % razmaka
+STOP_LOSS = 0.08
+LOCK_AT = 0.03
+TRAIL = 0.04
 STATE_FILE = "state.json"
-PORTS = ["trend", "kontra"]
+CMD_FILE = "commands.json"
+PORTS = ["trend", "kontra", "tomo"]
 
 
 # ---------------- podaci ----------------
@@ -134,20 +138,35 @@ def load_state():
     with open(STATE_FILE, encoding="utf-8") as f:
         s = json.load(f)
     if "port" not in s:
-        s = {"port": {
-            "trend": {"cash": s.get("cash", START_CASH),
-                      "positions": s.get("positions", {}),
-                      "trades": s.get("trades", []),
-                      "eq": s.get("eq", [])},
-            "kontra": blank_port(),
-        }}
-        print("Migracija: stara povijest nastavlja kao TREND, KONTRA krece svjeze")
+        s = {"port": {"trend": {"cash": s.get("cash", START_CASH),
+                                "positions": s.get("positions", {}),
+                                "trades": s.get("trades", []),
+                                "eq": s.get("eq", [])}}}
+    for p in PORTS:                      # dodaj portfelje koji nedostaju
+        if p not in s["port"]:
+            s["port"][p] = blank_port()
+            print(f"Novi portfelj: {p.upper()} krece s {START_CASH:,.0f} $")
     return s
 
 
 def save_state(state):
     with open(STATE_FILE, "w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=1)
+
+
+def load_commands():
+    if not os.path.exists(CMD_FILE):
+        return []
+    try:
+        with open(CMD_FILE, encoding="utf-8") as f:
+            return json.load(f).get("cmds", [])
+    except Exception:
+        return []
+
+
+def clear_commands():
+    with open(CMD_FILE, "w", encoding="utf-8") as f:
+        json.dump({"cmds": []}, f)
 
 
 def unrealized(pos, price):
@@ -160,7 +179,6 @@ def now_str():
 
 
 def init_stop(pos):
-    """Pocetni stop na -8 % od ulaza (ako ga pozicija jos nema)."""
     if "stop" not in pos:
         if pos["side"] == "long":
             pos["stop"] = pos["entry"] * (1 - STOP_LOSS)
@@ -169,7 +187,6 @@ def init_stop(pos):
 
 
 def update_trailing(pos, price):
-    """Na +3 % stop skace na break-even; iznad toga prati cijenu na 4 %."""
     if pos["side"] == "long":
         if price >= pos["entry"] * (1 + LOCK_AT):
             pos["stop"] = max(pos["stop"], pos["entry"], price * (1 - TRAIL))
@@ -183,7 +200,6 @@ def stop_hit(pos, price):
 
 
 def stop_reason(pos):
-    """Je li stop ispod/iznad ulaza (gubitak) ili zakljucana dobit."""
     if pos["side"] == "long":
         return "trailing stop — dobit zakljucana" if pos["stop"] >= pos["entry"] else "stop-loss -8 %"
     return "trailing stop — dobit zakljucana" if pos["stop"] <= pos["entry"] else "stop-loss -8 %"
@@ -200,6 +216,7 @@ def close_position(port, name, sym, price, why):
     })
     del port["trades"][200:]
     print(f"  [{name}] ZATVOREN {pos['side'].upper()} {sym} @ {price:.4f}  P/L {pl:+.2f} $  ({why})")
+    return pos
 
 
 def open_position(port, name, sym, side, price):
@@ -212,9 +229,34 @@ def open_position(port, name, sym, side, price):
 FLIP = {"long": "short", "short": "long", "wait": "wait"}
 
 
-# ---------------- glavni ciklus ----------------
+def process_commands(state):
+    """Rucni nalozi s ploce za TOMO portfelj."""
+    cmds = load_commands()
+    if not cmds:
+        return
+    tomo = state["port"]["tomo"]
+    tomo.setdefault("limits", {})
+    for c in cmds:
+        sym = c.get("sym")
+        if c.get("type") == "limit" and sym in tomo["positions"]:
+            try:
+                tomo["limits"][sym] = float(c.get("price"))
+                print(f"  [tomo] LIMIT nalog primljen: {sym} @ {tomo['limits'][sym]}")
+            except (TypeError, ValueError):
+                print(f"  [tomo] ! neispravan limit za {sym}, preskacem")
+        elif c.get("type") == "market" and sym in tomo["positions"]:
+            tomo.setdefault("_market", []).append(sym)
+            print(f"  [tomo] MARKET nalog primljen: {sym}")
+    clear_commands()
+
+
 def main():
     state = load_state()
+    process_commands(state)
+    tomo = state["port"]["tomo"]
+    tomo.setdefault("limits", {})
+    tomo.setdefault("muted", {})
+    market_q = set(tomo.pop("_market", []))
     prices = {}
 
     for sym in COINS:
@@ -229,13 +271,44 @@ def main():
 
         for name in PORTS:
             port = state["port"][name]
-            want = sig if name == "trend" else FLIP[sig]
+            want = sig if name != "kontra" else FLIP[sig]
             pos = port["positions"].get(sym)
 
+            if name == "tomo":
+                # rucno vodjeni portfelj
+                if pos:
+                    init_stop(pos)
+                    update_trailing(pos, price)
+                    if sym in market_q:
+                        close_position(port, name, sym, price, "rucno zatvoreno (TOMO, market)")
+                        tomo["muted"][sym] = pos["side"]
+                        tomo["limits"].pop(sym, None)
+                        continue
+                    lim = tomo["limits"].get(sym)
+                    if lim is not None:
+                        hit = price >= lim if pos["side"] == "long" else price <= lim
+                        if hit:
+                            close_position(port, name, sym, lim, "limit nalog izvrsen (TOMO)")
+                            tomo["muted"][sym] = pos["side"]
+                            tomo["limits"].pop(sym, None)
+                            continue
+                    if stop_hit(pos, price):
+                        close_position(port, name, sym, price, stop_reason(pos))
+                        tomo["limits"].pop(sym, None)
+                        continue
+                    # nema signalnih izlaza — Tomo odlucuje
+                else:
+                    if tomo["muted"].get(sym) and tomo["muted"][sym] != want:
+                        tomo["muted"].pop(sym, None)
+                    if want in ("long", "short") and not tomo["muted"].get(sym):
+                        open_position(port, name, sym, want, price)
+                continue
+
+            # trend/kontra: v3 pravila
             if pos:
-                init_stop(pos)              # postojece pozicije dobivaju stop
+                init_stop(pos)
                 update_trailing(pos, price)
-                if stop_hit(pos, price):    # kontrola rizika ima prednost
+                if stop_hit(pos, price):
                     close_position(port, name, sym, price, stop_reason(pos))
                     continue
                 if want == "wait":
