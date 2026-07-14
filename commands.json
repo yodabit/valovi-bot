@@ -1,12 +1,1 @@
-{
- "cmds": [
-  {
-   "sym": "LINK",
-   "type": "market"
-  },
-  {
-   "sym": "BTC",
-   "type": "market"
-  }
- ]
-}
+{"cmds": []}
