@@ -1,14 +1,8 @@
 {
  "port": {
   "trend": {
-   "cash": 9621.310705926548,
+   "cash": 9643.574170007641,
    "positions": {
-    "XRP": {
-     "side": "short",
-     "entry": 1.1345,
-     "opened": "05.07. 16:50 UTC",
-     "stop": 1.0998
-    },
     "BNB": {
      "side": "short",
      "entry": 585.47,
@@ -31,22 +25,50 @@
      "side": "long",
      "entry": 7.907,
      "opened": "10.07. 04:18 UTC",
-     "stop": 7.947839999999999
+     "stop": 7.99104
     },
     "ETH": {
      "side": "long",
      "entry": 1750.66,
      "opened": "13.07. 18:13 UTC",
-     "stop": 1790.7648000000002
+     "stop": 1802.8224
     },
     "SOL": {
      "side": "long",
      "entry": 74.55,
      "opened": "13.07. 22:13 UTC",
-     "stop": 68.586
+     "stop": 74.55
+    },
+    "DOGE": {
+     "side": "short",
+     "entry": 0.07496,
+     "opened": "14.07. 15:51 UTC",
+     "stop": 0.08095680000000001
+    },
+    "ADA": {
+     "side": "short",
+     "entry": 0.1666,
+     "opened": "14.07. 15:51 UTC",
+     "stop": 0.179928
+    },
+    "AVAX": {
+     "side": "short",
+     "entry": 6.67,
+     "opened": "14.07. 15:51 UTC",
+     "stop": 7.203600000000001
     }
    },
    "trades": [
+    {
+     "time": "14.07. 15:51 UTC",
+     "sym": "XRP",
+     "side": "short",
+     "entry": 1.1345,
+     "exit": 1.1072,
+     "pl": 22.26,
+     "plPct": 2.23,
+     "why": "trailing stop — dobit zakljucana"
+    },
     {
      "time": "14.07. 14:16 UTC",
      "sym": "AVAX",
@@ -576,24 +598,16 @@
     {
      "t": 1784038562434,
      "v": 9834.28
+    },
+    {
+     "t": 1784044309428,
+     "v": 9845.26
     }
    ]
   },
   "kontra": {
-   "cash": 9997.242529905827,
+   "cash": 9989.053566498626,
    "positions": {
-    "BTC": {
-     "side": "short",
-     "entry": 64187.85,
-     "opened": "11.07. 19:34 UTC",
-     "stop": 64187.85
-    },
-    "SOL": {
-     "side": "short",
-     "entry": 77.86,
-     "opened": "11.07. 19:34 UTC",
-     "stop": 77.376
-    },
     "XRP": {
      "side": "long",
      "entry": 1.1136,
@@ -629,9 +643,41 @@
      "entry": 0.1618,
      "opened": "12.07. 22:10 UTC",
      "stop": 0.14885600000000002
+    },
+    "ETH": {
+     "side": "short",
+     "entry": 1877.94,
+     "opened": "14.07. 15:51 UTC",
+     "stop": 2028.1752000000001
+    },
+    "LINK": {
+     "side": "short",
+     "entry": 8.324,
+     "opened": "14.07. 15:51 UTC",
+     "stop": 8.98992
     }
    },
    "trades": [
+    {
+     "time": "14.07. 15:51 UTC",
+     "sym": "SOL",
+     "side": "short",
+     "entry": 77.86,
+     "exit": 77.5,
+     "pl": 2.82,
+     "plPct": 0.28,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "14.07. 15:51 UTC",
+     "sym": "BTC",
+     "side": "short",
+     "entry": 64187.85,
+     "exit": 64779.19,
+     "pl": -11.01,
+     "plPct": -1.1,
+     "why": "trailing stop — dobit zakljucana"
+    },
     {
      "time": "14.07. 14:16 UTC",
      "sym": "LINK",
@@ -823,6 +869,10 @@
     {
      "t": 1784038562434,
      "v": 9945.94
+    },
+    {
+     "t": 1784044309428,
+     "v": 9981.62
     }
    ]
   },
@@ -833,7 +883,7 @@
      "side": "long",
      "entry": 1785.46,
      "opened": "13.07. 09:43 UTC",
-     "stop": 1790.7648000000002
+     "stop": 1802.8224
     },
     "SOL": {
      "side": "long",
@@ -845,7 +895,7 @@
      "side": "long",
      "entry": 7.98,
      "opened": "13.07. 09:43 UTC",
-     "stop": 7.98
+     "stop": 7.99104
     },
     "DOT": {
      "side": "short",
@@ -996,6 +1046,10 @@
     {
      "t": 1784038562434,
      "v": 10165.22
+    },
+    {
+     "t": 1784044309428,
+     "v": 10193.75
     }
    ],
    "limits": {},
@@ -1008,17 +1062,17 @@
    }
   }
  },
- "last_run": "14.07. 14:16 UTC",
+ "last_run": "14.07. 15:51 UTC",
  "last_prices": {
-  "BTC": 63764.99,
-  "ETH": 1865.38,
-  "SOL": 76.69,
-  "XRP": 1.0967,
-  "BNB": 579.12,
-  "DOGE": 0.07389,
-  "ADA": 0.1634,
-  "AVAX": 6.64,
-  "LINK": 8.279,
-  "DOT": 0.848
+  "BTC": 64779.19,
+  "ETH": 1877.94,
+  "SOL": 77.5,
+  "XRP": 1.1072,
+  "BNB": 583.37,
+  "DOGE": 0.07496,
+  "ADA": 0.1666,
+  "AVAX": 6.67,
+  "LINK": 8.324,
+  "DOT": 0.857
  }
 }
