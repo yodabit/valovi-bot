@@ -1,8 +1,1 @@
-{
- "cmds": [
-  {
-   "sym": "ETH",
-   "type": "market"
-  }
- ]
-}
+{"cmds": []}
