@@ -5,7 +5,7 @@
   "rsi_hi": 72,
   "rsi_lo": 28,
   "max_pos": 10,
-  "stop": 1.5,
+  "stop": 10,
   "lock": 3,
   "trail": 3.5,
   "reinvest": 50
