@@ -5,6 +5,10 @@ on:
     - cron: "17 * * * *"   # svaki sat u xx:17
   workflow_dispatch: {}     # gumb + budjenje s ploce (TOMO nalozi)
 
+concurrency:
+  group: valovi-bot
+  cancel-in-progress: false   # nikad dva runa istovremeno — drugi ceka u redu
+
 permissions:
   contents: write
 
@@ -30,8 +34,7 @@ jobs:
         run: |
           git config user.name "valovi-bot"
           git config user.email "valovi-bot@users.noreply.github.com"
-          git add state.json
-          git add commands.json || true
+          git add state.json commands.json
           git commit -m "bot: azuriranje stanja" || echo "nema promjena"
           git pull --rebase origin main || true
           git push
