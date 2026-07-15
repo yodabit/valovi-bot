@@ -22,15 +22,50 @@ from datetime import datetime, timezone
 
 import requests
 
-COINS = ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "LINK", "DOT"]
+COINS_CORE = ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "LINK", "DOT"]
+COINS_EXTRA = ["LTC", "BCH", "XLM", "UNI", "ATOM", "NEAR", "APT", "AAVE", "FIL", "ALGO",
+               "ICP", "ETC", "HBAR", "ARB", "OP", "INJ", "SUI", "SEI", "GRT", "SAND"]
+COINS = COINS_CORE + COINS_EXTRA   # TOMO bira iz svih 30; TREND/KONTRA samo iz prvih 10
 START_CASH = 10000.0
 POS_SIZE = 1000.0
 FEE = 0.0009
-STOP_LOSS = 0.08
+STOP_LOSS = 0.08       # trend/kontra
+TOMO_STOP = 0.015      # TOMO: max minus -1,5 % pa automatsko zatvaranje
 LOCK_AT = 0.03
 TRAIL = 0.04
+TOMO_MAX_POS = 10      # TOMO: najvise 10 pozicija (kapital/10 po poziciji)
+REINVEST_AT = 0.50     # kad Sef dosegne 50 % kapitala, pola Sefa ide u Kapital
 STATE_FILE = "state.json"
 CMD_FILE = "commands.json"
+PARAMS_FILE = "params.json"
+
+DEFAULT_PARAMS = {"stop": 1.5, "lock": 3.0, "trail": 4.0, "max_pos": 10,
+                  "reinvest": 50.0, "ema_fast": 9, "ema_slow": 21,
+                  "rsi_hi": 72, "rsi_lo": 28}
+
+def load_params():
+    """TOMO parametri s ploce; sve izvan razumnih granica se stegne."""
+    p = dict(DEFAULT_PARAMS)
+    try:
+        if os.path.exists(PARAMS_FILE):
+            with open(PARAMS_FILE, encoding="utf-8") as f:
+                raw = json.load(f).get("tomo", {})
+            for k in p:
+                if k in raw:
+                    p[k] = float(raw[k])
+    except Exception as e:
+        print(f"  ! params.json neispravan, koristim zadane ({e})")
+    clamp = lambda v, lo, hi: max(lo, min(hi, v))
+    p["stop"] = clamp(p["stop"], 0.3, 20)
+    p["lock"] = clamp(p["lock"], 0.5, 30)
+    p["trail"] = clamp(p["trail"], 0.5, 30)
+    p["max_pos"] = int(clamp(p["max_pos"], 1, 15))
+    p["reinvest"] = clamp(p["reinvest"], 10, 200)
+    p["ema_fast"] = int(clamp(p["ema_fast"], 3, 50))
+    p["ema_slow"] = int(clamp(p["ema_slow"], p["ema_fast"] + 1, 100))
+    p["rsi_hi"] = clamp(p["rsi_hi"], 55, 95)
+    p["rsi_lo"] = clamp(p["rsi_lo"], 5, 45)
+    return p
 PORTS = ["trend", "kontra", "tomo"]
 
 
@@ -39,6 +74,13 @@ COINGECKO_IDS = {
     "BTC": "bitcoin", "ETH": "ethereum", "SOL": "solana", "XRP": "ripple",
     "BNB": "binancecoin", "DOGE": "dogecoin", "ADA": "cardano",
     "AVAX": "avalanche-2", "LINK": "chainlink", "DOT": "polkadot",
+    "LTC": "litecoin", "BCH": "bitcoin-cash", "XLM": "stellar",
+    "UNI": "uniswap", "ATOM": "cosmos", "NEAR": "near", "APT": "aptos",
+    "AAVE": "aave", "FIL": "filecoin", "ALGO": "algorand",
+    "ICP": "internet-computer", "ETC": "ethereum-classic",
+    "HBAR": "hedera-hashgraph", "ARB": "arbitrum", "OP": "optimism",
+    "INJ": "injective-protocol", "SUI": "sui", "SEI": "sei-network",
+    "GRT": "the-graph", "SAND": "the-sandbox",
 }
 HEADERS = {"User-Agent": "valovi-bot"}
 
@@ -114,13 +156,13 @@ def rsi(closes, period=14):
     return 100 - 100 / (1 + ag / al)
 
 
-def signal(closes):
-    e9, e21 = ema(closes, 9), ema(closes, 21)
+def signal(closes, fast=9, slow=21, hi=72, lo=28):
+    e9, e21 = ema(closes, fast), ema(closes, slow)
     r = rsi(closes)
     up, up_prev = e9[-1] > e21[-1], e9[-2] > e21[-2]
-    if up and r < 72:
+    if up and r < hi:
         return "long", ("svjezi presjek gore" if not up_prev else "uzlazni val traje")
-    if not up and r > 28:
+    if not up and r > lo:
         return "short", ("svjezi presjek dolje" if up_prev else "silazni val traje")
     if up:
         return "wait", f"trend gore ali RSI {r:.0f} pregrijan"
@@ -171,28 +213,28 @@ def clear_commands():
 
 def unrealized(pos, price):
     move = (price / pos["entry"] - 1) if pos["side"] == "long" else (1 - price / pos["entry"])
-    return POS_SIZE * move
+    return pos.get("size", POS_SIZE) * move
 
 
 def now_str():
     return datetime.now(timezone.utc).strftime("%d.%m. %H:%M UTC")
 
 
-def init_stop(pos):
+def init_stop(pos, stop_pct=STOP_LOSS):
     if "stop" not in pos:
         if pos["side"] == "long":
-            pos["stop"] = pos["entry"] * (1 - STOP_LOSS)
+            pos["stop"] = pos["entry"] * (1 - stop_pct)
         else:
-            pos["stop"] = pos["entry"] * (1 + STOP_LOSS)
+            pos["stop"] = pos["entry"] * (1 + stop_pct)
 
 
-def update_trailing(pos, price):
+def update_trailing(pos, price, lock=LOCK_AT, trail=TRAIL):
     if pos["side"] == "long":
-        if price >= pos["entry"] * (1 + LOCK_AT):
-            pos["stop"] = max(pos["stop"], pos["entry"], price * (1 - TRAIL))
+        if price >= pos["entry"] * (1 + lock):
+            pos["stop"] = max(pos["stop"], pos["entry"], price * (1 - trail))
     else:
-        if price <= pos["entry"] * (1 - LOCK_AT):
-            pos["stop"] = min(pos["stop"], pos["entry"], price * (1 + TRAIL))
+        if price <= pos["entry"] * (1 - lock):
+            pos["stop"] = min(pos["stop"], pos["entry"], price * (1 + trail))
 
 
 def stop_hit(pos, price):
@@ -201,18 +243,22 @@ def stop_hit(pos, price):
 
 def stop_reason(pos):
     if pos["side"] == "long":
-        return "trailing stop — dobit zakljucana" if pos["stop"] >= pos["entry"] else "stop-loss -8 %"
-    return "trailing stop — dobit zakljucana" if pos["stop"] <= pos["entry"] else "stop-loss -8 %"
+        return "trailing stop — dobit zakljucana" if pos["stop"] >= pos["entry"] else "automatski stop"
+    return "trailing stop — dobit zakljucana" if pos["stop"] <= pos["entry"] else "automatski stop"
 
 
 def close_position(port, name, sym, price, why):
     pos = port["positions"].pop(sym)
-    pl = unrealized(pos, price) - POS_SIZE * FEE * 2
-    port["cash"] += pl
+    size = pos.get("size", POS_SIZE)
+    pl = unrealized(pos, price) - size * FEE * 2
+    if "capital" in port:            # TOMO: dobit ide u Sef, kapital netaknut
+        port["vault"] = round(port.get("vault", 0) + pl, 2)
+    else:
+        port["cash"] += pl
     port["trades"].insert(0, {
         "time": now_str(), "sym": sym, "side": pos["side"],
         "entry": pos["entry"], "exit": price,
-        "pl": round(pl, 2), "plPct": round(pl / POS_SIZE * 100, 2), "why": why,
+        "pl": round(pl, 2), "plPct": round(pl / size * 100, 2), "why": why,
     })
     del port["trades"][200:]
     print(f"  [{name}] ZATVOREN {pos['side'].upper()} {sym} @ {price:.4f}  P/L {pl:+.2f} $  ({why})")
@@ -221,7 +267,11 @@ def close_position(port, name, sym, price, why):
 
 def open_position(port, name, sym, side, price):
     pos = {"side": side, "entry": price, "opened": now_str()}
-    init_stop(pos)
+    if "capital" in port:            # TOMO
+        pos["size"] = round(port["capital"] / port.get("_maxpos", TOMO_MAX_POS), 2)
+        init_stop(pos, port.get("_stop", TOMO_STOP))
+    else:
+        init_stop(pos)
     port["positions"][sym] = pos
     print(f"  [{name}] OTVOREN {side.upper()} {sym} @ {price:.4f}  (stop {pos['stop']:.4f})")
 
@@ -275,9 +325,19 @@ def main():
     state = load_state()
     repair_bogus_limit_trades(state)
     process_commands(state)
+    PR = load_params()
+    print("TOMO parametri:", PR)
+    t_stop, t_lock, t_trail = PR["stop"]/100, PR["lock"]/100, PR["trail"]/100
     tomo = state["port"]["tomo"]
     tomo.setdefault("limits", {})
-    tomo.setdefault("muted", {})
+    tomo.setdefault("muted", {})                 # v6: hladjenje po tokenu vraceno
+    tomo["_maxpos"] = int(PR["max_pos"])         # za velicinu pozicije pri otvaranju
+    tomo["_stop"] = t_stop
+    if "capital" not in tomo:                    # migracija na Kapital/Sef model
+        old = tomo.pop("cash", START_CASH)
+        tomo["capital"] = START_CASH
+        tomo["vault"] = round(old - START_CASH, 2)
+        print(f"Migracija TOMO: Kapital {tomo['capital']:,.0f} $, Sef {tomo['vault']:+,.2f} $")
     market_q = set(tomo.pop("_market", []))
     prices = {}
 
@@ -293,39 +353,48 @@ def main():
 
         for name in PORTS:
             port = state["port"][name]
+            if name != "tomo" and sym not in COINS_CORE:
+                continue                          # trend/kontra ostaju na 10 tokena
             want = sig if name != "kontra" else FLIP[sig]
             pos = port["positions"].get(sym)
 
             if name == "tomo":
-                # rucno vodjeni portfelj
+                # rucno vodjeni portfelj: parametri s ploce, hladjenje po tokenu
+                t_want_sig, _ = signal(closes, int(PR["ema_fast"]), int(PR["ema_slow"]),
+                                       PR["rsi_hi"], PR["rsi_lo"])
                 if pos:
-                    init_stop(pos)
-                    update_trailing(pos, price)
+                    init_stop(pos, t_stop)
+                    if pos["side"] == "long":
+                        pos["stop"] = max(pos["stop"], pos["entry"] * (1 - t_stop))
+                    else:
+                        pos["stop"] = min(pos["stop"], pos["entry"] * (1 + t_stop))
+                    update_trailing(pos, price, t_lock, t_trail)
+                    closed_side = pos["side"]
                     if sym in market_q:
                         close_position(port, name, sym, price, "rucno zatvoreno (TOMO, market)")
-                        tomo["muted"][sym] = pos["side"]
+                        tomo["muted"][sym] = closed_side
                         tomo["limits"].pop(sym, None)
                         continue
                     lim = tomo["limits"].get(sym)
                     if lim is not None:
                         hit = price >= lim if pos["side"] == "long" else price <= lim
                         if hit:
-                            # izvrsi po stvarnoj trenutnoj cijeni (satna provjera);
-                            # stiti od krivo upisanog limita — ne moze biti gore od trzista
                             close_position(port, name, sym, price, "limit nalog izvrsen (TOMO)")
-                            tomo["muted"][sym] = pos["side"]
+                            tomo["muted"][sym] = closed_side
                             tomo["limits"].pop(sym, None)
                             continue
                     if stop_hit(pos, price):
                         close_position(port, name, sym, price, stop_reason(pos))
+                        tomo["muted"][sym] = closed_side
                         tomo["limits"].pop(sym, None)
                         continue
-                    # nema signalnih izlaza — Tomo odlucuje
                 else:
-                    if tomo["muted"].get(sym) and tomo["muted"][sym] != want:
+                    if tomo["muted"].get(sym) and tomo["muted"][sym] != t_want_sig:
                         tomo["muted"].pop(sym, None)
-                    if want in ("long", "short") and not tomo["muted"].get(sym):
-                        open_position(port, name, sym, want, price)
+                    if (t_want_sig in ("long", "short")
+                            and not tomo["muted"].get(sym)
+                            and len(port["positions"]) < int(PR["max_pos"])):
+                        open_position(port, name, sym, t_want_sig, price)
                 continue
 
             # trend/kontra: v3 pravila
@@ -345,11 +414,20 @@ def main():
 
         time.sleep(0.5)
 
+    # reinvestiranje: kad Sef dosegne 50 % Kapitala, pola Sefa prelazi u Kapital
+    if tomo.get("vault", 0) >= (PR["reinvest"]/100) * tomo.get("capital", START_CASH):
+        transfer = round(tomo["vault"] * 0.5, 2)
+        tomo["capital"] = round(tomo["capital"] + transfer, 2)
+        tomo["vault"] = round(tomo["vault"] - transfer, 2)
+        print(f"  [tomo] REINVEST: {transfer:,.2f} $ iz Sefa u Kapital "
+              f"(Kapital sada {tomo['capital']:,.2f} $)")
+
     for name in PORTS:
         port = state["port"][name]
         unreal = sum(unrealized(p, prices.get(s, p["entry"]))
                      for s, p in port["positions"].items())
-        equity = port["cash"] + unreal
+        equity = (port["capital"] + port.get("vault", 0) if "capital" in port
+                  else port["cash"]) + unreal
         port["eq"].append({"t": int(time.time() * 1000), "v": round(equity, 2)})
         del port["eq"][:-1000]
         wins = sum(1 for t in port["trades"] if t["pl"] > 0)
@@ -357,6 +435,7 @@ def main():
         wr = f"{100*wins/total:.0f} %" if total else "-"
         print(f"[{name.upper():6s}] kapital {equity:,.2f} $ | trejdova {total} | win rate {wr}")
 
+    tomo.pop("_maxpos", None); tomo.pop("_stop", None)
     state["last_run"] = now_str()
     state["last_prices"] = {s: round(p, 6) for s, p in prices.items()}
     save_state(state)
