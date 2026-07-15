@@ -1,1 +1,8 @@
-{"cmds": []}
+{
+ "cmds": [
+  {
+   "sym": "SOL",
+   "type": "market"
+  }
+ ]
+}
