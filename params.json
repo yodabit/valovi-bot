@@ -1,0 +1,13 @@
+{
+ "tomo": {
+  "ema_fast": 9,
+  "ema_slow": 21,
+  "rsi_hi": 72,
+  "rsi_lo": 28,
+  "max_pos": 10,
+  "stop": 1.5,
+  "lock": 3,
+  "trail": 3.5,
+  "reinvest": 50
+ }
+}
