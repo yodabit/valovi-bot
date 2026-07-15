@@ -682,6 +682,10 @@
     {
      "t": 1784133992875,
      "v": 9921.6
+    },
+    {
+     "t": 1784135602740,
+     "v": 9921.26
     }
    ]
   },
@@ -1029,6 +1033,10 @@
     {
      "t": 1784133992875,
      "v": 9884.5
+    },
+    {
+     "t": 1784135602740,
+     "v": 9885.89
     }
    ]
   },
@@ -1055,40 +1063,12 @@
      "size": 1000.0,
      "stop": 3.57949
     },
-    "ATOM": {
-     "side": "short",
-     "entry": 1.578,
-     "opened": "15.07. 13:57 UTC",
-     "size": 1000.0,
-     "stop": 1.60167
-    },
-    "NEAR": {
-     "side": "short",
-     "entry": 2.081,
-     "opened": "15.07. 13:57 UTC",
-     "size": 1000.0,
-     "stop": 2.112215
-    },
-    "APT": {
-     "side": "short",
-     "entry": 0.6255,
-     "opened": "15.07. 13:57 UTC",
-     "size": 1000.0,
-     "stop": 0.6348824999999999
-    },
     "FIL": {
      "side": "long",
      "entry": 0.795,
      "opened": "15.07. 13:57 UTC",
      "size": 1000.0,
      "stop": 0.7830750000000001
-    },
-    "ALGO": {
-     "side": "short",
-     "entry": 0.0854,
-     "opened": "15.07. 13:57 UTC",
-     "size": 1000.0,
-     "stop": 0.086681
     },
     "ICP": {
      "side": "short",
@@ -1103,9 +1083,77 @@
      "opened": "15.07. 16:46 UTC",
      "size": 1000.0,
      "stop": 7.766
+    },
+    "HBAR": {
+     "side": "short",
+     "entry": 0.06755,
+     "opened": "15.07. 17:13 UTC",
+     "size": 1000.0,
+     "stop": 0.07430500000000001
+    },
+    "ARB": {
+     "side": "long",
+     "entry": 0.0877,
+     "opened": "15.07. 17:13 UTC",
+     "size": 1000.0,
+     "stop": 0.07893
+    },
+    "OP": {
+     "side": "short",
+     "entry": 0.102,
+     "opened": "15.07. 17:13 UTC",
+     "size": 1000.0,
+     "stop": 0.11220000000000001
+    },
+    "INJ": {
+     "side": "long",
+     "entry": 5.093,
+     "opened": "15.07. 17:13 UTC",
+     "size": 1000.0,
+     "stop": 4.5837
     }
    },
    "trades": [
+    {
+     "time": "15.07. 17:13 UTC",
+     "sym": "ALGO",
+     "side": "short",
+     "entry": 0.0854,
+     "exit": 0.085,
+     "pl": 2.88,
+     "plPct": 0.29,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "15.07. 17:13 UTC",
+     "sym": "APT",
+     "side": "short",
+     "entry": 0.6255,
+     "exit": 0.624,
+     "pl": 0.6,
+     "plPct": 0.06,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "15.07. 17:13 UTC",
+     "sym": "NEAR",
+     "side": "short",
+     "entry": 2.081,
+     "exit": 2.071,
+     "pl": 3.01,
+     "plPct": 0.3,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "15.07. 17:13 UTC",
+     "sym": "ATOM",
+     "side": "short",
+     "entry": 1.578,
+     "exit": 1.565,
+     "pl": 6.44,
+     "plPct": 0.64,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
     {
      "time": "15.07. 16:46 UTC",
      "sym": "AAVE",
@@ -1379,6 +1427,10 @@
     {
      "t": 1784133992875,
      "v": 10155.35
+    },
+    {
+     "t": 1784135602740,
+     "v": 10139.41
     }
    ],
    "limits": {},
@@ -1394,43 +1446,47 @@
     "SOL": "long",
     "DOT": "short",
     "BCH": "long",
-    "AAVE": "long"
+    "AAVE": "long",
+    "ATOM": "short",
+    "NEAR": "short",
+    "APT": "short",
+    "ALGO": "short"
    },
    "capital": 10000.0,
-   "vault": 127.88
+   "vault": 140.81
   }
  },
- "last_run": "15.07. 16:46 UTC",
+ "last_run": "15.07. 17:13 UTC",
  "last_prices": {
-  "BTC": 64846.15,
-  "ETH": 1909.21,
-  "SOL": 77.26,
-  "XRP": 1.11,
-  "BNB": 577.26,
-  "DOGE": 0.0737,
-  "ADA": 0.1631,
-  "AVAX": 6.67,
-  "LINK": 8.439,
-  "DOT": 0.847,
-  "LTC": 44.9,
-  "BCH": 230.79,
-  "XLM": 0.187209,
-  "UNI": 3.639,
-  "ATOM": 1.56,
-  "NEAR": 2.053,
-  "APT": 0.619,
-  "AAVE": 95.89,
-  "FIL": 0.787,
-  "ALGO": 0.0847,
-  "ICP": 2.192,
-  "ETC": 7.06,
-  "HBAR": 0.06736,
-  "ARB": 0.0874,
+  "BTC": 65050.14,
+  "ETH": 1921.15,
+  "SOL": 77.64,
+  "XRP": 1.1136,
+  "BNB": 578.88,
+  "DOGE": 0.07402,
+  "ADA": 0.164,
+  "AVAX": 6.7,
+  "LINK": 8.495,
+  "DOT": 0.849,
+  "LTC": 45.18,
+  "BCH": 228.12,
+  "XLM": 0.187457,
+  "UNI": 3.678,
+  "ATOM": 1.565,
+  "NEAR": 2.071,
+  "APT": 0.624,
+  "AAVE": 96.59,
+  "FIL": 0.791,
+  "ALGO": 0.085,
+  "ICP": 2.199,
+  "ETC": 7.08,
+  "HBAR": 0.06755,
+  "ARB": 0.0877,
   "OP": 0.102,
-  "INJ": 5.092,
-  "SUI": 0.7466,
-  "SEI": 0.04804,
+  "INJ": 5.093,
+  "SUI": 0.7497,
+  "SEI": 0.04814,
   "GRT": 0.0177,
-  "SAND": 0.0483
+  "SAND": 0.0484
  }
 }
