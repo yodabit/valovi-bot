@@ -7,6 +7,10 @@
   {
    "sym": "NEAR",
    "type": "market"
+  },
+  {
+   "sym": "APT",
+   "type": "market"
   }
  ]
 }
