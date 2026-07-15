@@ -11,6 +11,10 @@
   {
    "sym": "APT",
    "type": "market"
+  },
+  {
+   "sym": "ALGO",
+   "type": "market"
   }
  ]
 }
