@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valovi — Satni val (Revolut mini-test)</title>
+<style>
+  :root{
+    --bg:#0b1118;
+    --panel:#111a24;
+    --panel2:#0e1620;
+    --border:#1e2a38;
+    --text:#d7e1ea;
+    --muted:#7d8fa0;
+    --teal:#2dd4bf;
+    --teal-dim:#164e48;
+    --red:#f26d6d;
+    --red-dim:#4a1f24;
+    --gold:#e8c268;
+    --green:#4ade80;
+    --font-num:"SF Mono",Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:18px}
+  h1{font-size:22px;letter-spacing:.5px;margin:0}
+  h1 .dot{color:var(--teal)}
+  h2{font-size:15px;margin:28px 0 8px;letter-spacing:.3px}
+  h2 small{color:var(--muted);font-weight:400;font-size:12px;margin-left:8px}
+  .sub{color:var(--muted);font-size:13px;margin:2px 0 16px}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+  button{background:var(--panel);border:1px solid var(--border);color:var(--text);
+    border-radius:8px;padding:7px 14px;cursor:pointer;font-size:13px}
+  button:hover{border-color:var(--teal)}
+  button.primary{background:var(--teal);color:#04211d;border-color:var(--teal);font-weight:600}
+  button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+  .chip{background:var(--panel);border:1px solid var(--border);border-radius:8px;
+    padding:6px 12px;font-size:12.5px;color:var(--muted)}
+  .chip b{color:var(--text);font-family:var(--font-num)}
+  .chip b.buy{color:var(--green)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);
+    border:1px solid var(--border);border-radius:10px;overflow:hidden;font-size:13.5px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);
+    text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);font-weight:600}
+  td{padding:9px 12px;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+  tr:nth-child(even) td{background:var(--panel2)}
+  .num{font-family:var(--font-num);white-space:nowrap}
+  .up{color:var(--green)} .down{color:var(--red)} .flat{color:var(--muted)}
+  .badge{display:inline-block;padding:2px 10px;border-radius:6px;font-size:11.5px;
+    font-weight:700;letter-spacing:.5px;border:1px solid}
+  .badge.kupi{color:var(--green);border-color:var(--green);background:rgba(74,222,128,.08)}
+  .badge.cekaj{color:var(--muted);border-color:var(--border)}
+  .badge.pregrijan{color:var(--gold);border-color:var(--gold);background:rgba(232,194,104,.07)}
+  .badge.prodaj{color:#04211d;border-color:var(--green);background:var(--green)}
+  .badge.stop{color:#fff;border-color:var(--red);background:var(--red)}
+  .kbtn{padding:4px 10px;font-size:12px;border-radius:6px}
+  .params{display:flex;flex-wrap:wrap;gap:10px;background:var(--panel);
+    border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:6px}
+  .params label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--muted);display:block;margin-bottom:3px}
+  .params input{width:82px;background:var(--panel2);border:1px solid var(--border);
+    color:var(--text);border-radius:6px;padding:6px 8px;font-family:var(--font-num);font-size:13px}
+  .params input:focus{outline:none;border-color:var(--teal)}
+  .hint{color:var(--muted);font-size:12.5px;margin:8px 0 0}
+  .posform{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;background:var(--panel);
+    border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+  .posform label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--muted);display:block;margin-bottom:3px}
+  .posform input,.posform select{background:var(--panel2);border:1px solid var(--border);
+    color:var(--text);border-radius:6px;padding:7px 9px;font-family:var(--font-num);font-size:13px}
+  .posform select{font-family:inherit;min-width:110px}
+  tr.alarm td{background:rgba(74,222,128,.10)!important}
+  tr.alarmstop td{background:rgba(242,109,109,.12)!important}
+  .foot{color:var(--muted);font-size:12px;margin-top:30px;border-top:1px solid var(--border);padding-top:12px}
+  .totline{font-size:13.5px;margin:6px 0 14px;color:var(--muted)}
+  .totline b{font-family:var(--font-num)}
+  svg.spark{vertical-align:middle}
+  @media (max-width:720px){
+    body{padding:10px}
+    td,th{padding:7px 8px;font-size:12.5px}
+    .hidemob{display:none}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    tr.alarm td,tr.alarmstop td{transition:background .4s}
+  }
+</style>
+</head>
+<body>
+
+<h1>VALOVI<span class="dot">.</span> Satni val</h1>
+<p class="sub">Revolut mini-test · dnevni valovi, 1-satne svijeće (Binance) · samo LONG · signali su informativni, kupuješ ručno na Revolutu X</p>
+
+<div class="bar">
+  <button class="primary" id="btnRefresh">Osvježi signale</button>
+  <span class="chip">Zadnje osvježeno: <b id="lastTime">—</b></span>
+  <span class="chip">KUPI: <b class="buy" id="cntKupi">0</b></span>
+  <span class="chip">ČEKAJ: <b id="cntCekaj">0</b></span>
+  <span class="chip">PREGRIJAN: <b id="cntHot">0</b></span>
+  <span class="chip"><label style="cursor:pointer"><input type="checkbox" id="chkAuto" checked> auto-osvježi 60 s</label></span>
+  <span class="chip"><label style="cursor:pointer"><input type="checkbox" id="chkBeep"> zvučni alarm</label></span>
+</div>
+
+<h2>⚙ Parametri igre <small>tvoje kućice — vrijede odmah, pamte se na ovom uređaju</small></h2>
+<div class="params">
+  <div><label>RSI kupi ispod</label><input id="pRsiBuy" value="35"></div>
+  <div><label>RSI pregrijan iznad</label><input id="pRsiHot" value="65"></div>
+  <div><label>Cilj TP %</label><input id="pTp" value="2,5"></div>
+  <div><label>Stop SL %</label><input id="pSl" value="1,5"></div>
+  <div><label>Ulog € po tokenu</label><input id="pUlog" value="20"></div>
+  <div style="align-self:flex-end"><button id="btnSaveParams">💾 Spremi</button></div>
+</div>
+<p class="hint"><b>KUPI</b> = RSI(14) na satnim svijećama pao ispod praga (val pri dnu) <b>i</b> zadnja zatvorena svijeća zelena (odskok krenuo). <b>PREGRIJAN</b> = RSI iznad gornjeg praga — ako držiš, razmisli o pobiranju. Naknade 0,09 % po strani već su uračunate u neto P/L.</p>
+
+<h2>Signali <small>samo tokeni dostupni na Revolutu X (EUR parovi, filtrirani po volumenu) · cijene u EUR</small></h2>
+<table>
+  <thead><tr>
+    <th>Token</th><th>Cijena (EUR)</th><th>24 h</th>
+    <th class="hidemob">Val — zadnjih 48 h</th><th>RSI(14) 1h</th><th>Signal</th><th></th>
+  </tr></thead>
+  <tbody id="tbSignals"><tr><td colspan="7">Učitavam…</td></tr></tbody>
+</table>
+
+<h2>Moje pozicije (Revolut) <small>upiši što si stvarno kupio — ploča prati stop i cilj uživo</small></h2>
+<div class="posform">
+  <div><label>Token</label><select id="fTok"></select></div>
+  <div><label>Ulazna cijena €</label><input id="fUlaz" placeholder="npr. 0,1621" style="width:120px"></div>
+  <div><label>Ulog €</label><input id="fUlog" style="width:80px"></div>
+  <div><button class="primary" id="btnAddPos">+ Dodaj poziciju</button></div>
+</div>
+<table>
+  <thead><tr>
+    <th>Token</th><th>Ulaz €</th><th>Trenutno €</th><th>Neto P/L</th>
+    <th class="hidemob">Stop €</th><th class="hidemob">Cilj €</th><th>Status</th><th></th>
+  </tr></thead>
+  <tbody id="tbPos"><tr><td colspan="8">Nema otvorenih pozicija.</td></tr></tbody>
+</table>
+
+<h2>Dnevnik trejdova <small>najnoviji prvi · pamti se na ovom uređaju</small></h2>
+<p class="totline">Ukupni realizirani neto P/L: <b id="totPl">0,00 €</b> · Dobitni: <b id="totW">0</b> · Gubitni: <b id="totL">0</b></p>
+<table>
+  <thead><tr><th>Vrijeme</th><th>Token</th><th>Ulaz €</th><th>Izlaz €</th><th>Neto P/L</th></tr></thead>
+  <tbody id="tbLog"><tr><td colspan="5">Još nema zatvorenih trejdova.</td></tr></tbody>
+</table>
+
+<p class="foot">Edukativni alat, ne predstavlja investicijski savjet. Signali su izračunati iz javnih podataka (Binance, USDT parovi preračunati u EUR preko EURUSDT tečaja) i ne jamče buduće rezultate. Ploča ne izvršava naloge — kupnja i prodaja rade se ručno na Revolutu X, odluke i rizik su tvoji. Cijene na Revolutu mogu odstupati od Binancea (spread) — u dnevnik upisuj stvarne Revolut cijene.</p>
+
+<script>
+"use strict";
+/* ---------- tokeni: Revolut X EUR lista ∩ Binance spot, volumen > $20K ---------- */
+const TOKENS = [
+  {t:"BTC",b:"BTCUSDT"},{t:"ETH",b:"ETHUSDT"},{t:"SOL",b:"SOLUSDT"},{t:"XRP",b:"XRPUSDT"},
+  {t:"PEPE",b:"PEPEUSDT"},{t:"NEAR",b:"NEARUSDT"},{t:"SUI",b:"SUIUSDT"},{t:"ADA",b:"ADAUSDT"},
+  {t:"AAVE",b:"AAVEUSDT"},{t:"XLM",b:"XLMUSDT"},{t:"ONDO",b:"ONDOUSDT"},{t:"BCH",b:"BCHUSDT"},
+  {t:"HBAR",b:"HBARUSDT"},{t:"LTC",b:"LTCUSDT"},{t:"RENDER",b:"RENDERUSDT"},{t:"TON",b:"TONUSDT"},
+  {t:"TRX",b:"TRXUSDT"},{t:"UNI",b:"UNIUSDT"},{t:"DOGE",b:"DOGEUSDT"},{t:"LDO",b:"LDOUSDT"},
+  {t:"FET",b:"FETUSDT"},{t:"LINK",b:"LINKUSDT"},{t:"ARB",b:"ARBUSDT"},{t:"ATOM",b:"ATOMUSDT"},
+  {t:"TIA",b:"TIAUSDT"},{t:"BONK",b:"BONKUSDT"},{t:"WIF",b:"WIFUSDT"},{t:"BNB",b:"BNBUSDT"},
+  {t:"PENGU",b:"PENGUUSDT"}
+];
+const FEE = 0.0009;            // 0,09 % po strani (Revolut X)
+const LS_PAR="satni_params", LS_POS="satni_pozicije", LS_LOG="satni_dnevnik";
+
+/* ---------- hrvatski brojevi: prikaz sa zarezom, unos prima zarez i točku ---------- */
+function fmt(n,dec){ if(!isFinite(n))return "—";
+  if(dec===undefined) dec = n>=1000?0 : n>=100?2 : n>=1?4 : n>=0.01?4 : 8;
+  return n.toLocaleString("hr-HR",{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+function parseNum(s){ if(typeof s!=="string") return NaN;
+  return parseFloat(s.trim().replace(/\./g,"").replace(",",".").replace(/[^\d.\-]/g,"")||
+                    s.trim().replace(",",".")); }
+function parseInput(s){ // jednostavniji, siguran parser za kućice: "2,5" ili "2.5"
+  return parseFloat(String(s).trim().replace(",",".")); }
+
+/* ---------- parametri ---------- */
+function loadParams(){
+  const d={rsiBuy:35,rsiHot:65,tp:2.5,sl:1.5,ulog:20};
+  try{ return Object.assign(d, JSON.parse(localStorage.getItem(LS_PAR)||"{}")); }catch(e){ return d; }
+}
+function showParams(p){
+  pRsiBuy.value=fmt(p.rsiBuy,0); pRsiHot.value=fmt(p.rsiHot,0);
+  pTp.value=fmt(p.tp,1); pSl.value=fmt(p.sl,1); pUlog.value=fmt(p.ulog,0);
+  fUlog.value=fmt(p.ulog,0);
+}
+let PAR = loadParams(); showParams(PAR);
+btnSaveParams.onclick=()=>{
+  const p={rsiBuy:parseInput(pRsiBuy.value),rsiHot:parseInput(pRsiHot.value),
+           tp:parseInput(pTp.value),sl:parseInput(pSl.value),ulog:parseInput(pUlog.value)};
+  for(const k in p){ if(!isFinite(p[k])||p[k]<=0){ alert("Neispravna vrijednost: "+k); return; } }
+  p.rsiBuy=Math.min(Math.max(p.rsiBuy,10),50); p.rsiHot=Math.min(Math.max(p.rsiHot,50),90);
+  PAR=p; localStorage.setItem(LS_PAR,JSON.stringify(p)); showParams(p);
+  btnSaveParams.textContent="✔ Spremljeno"; setTimeout(()=>btnSaveParams.textContent="💾 Spremi",1500);
+  render();
+};
+
+/* ---------- pozicije i dnevnik ---------- */
+function loadJSON(k){ try{ return JSON.parse(localStorage.getItem(k)||"[]"); }catch(e){ return []; } }
+let POS = loadJSON(LS_POS);
+let LOG = loadJSON(LS_LOG);
+function savePos(){ localStorage.setItem(LS_POS,JSON.stringify(POS)); }
+function saveLog(){ localStorage.setItem(LS_LOG,JSON.stringify(LOG)); }
+
+/* ---------- RSI(14), Wilder ---------- */
+function rsi(closes,period=14){
+  if(closes.length<period+1) return NaN;
+  let g=0,l=0;
+  for(let i=1;i<=period;i++){ const d=closes[i]-closes[i-1]; if(d>0)g+=d; else l-=d; }
+  let ag=g/period, al=l/period;
+  for(let i=period+1;i<closes.length;i++){
+    const d=closes[i]-closes[i-1];
+    ag=(ag*(period-1)+(d>0?d:0))/period;
+    al=(al*(period-1)+(d<0?-d:0))/period;
+  }
+  if(al===0) return 100;
+  return 100-100/(1+ag/al);
+}
+
+/* ---------- podaci ---------- */
+let DATA={};        // t -> {eur, chg24, rsi, lastGreen, spark[]}
+let EURRATE=null;   // USDT po EUR
+async function fetchJSON(u){ const r=await fetch(u); if(!r.ok)throw new Error(r.status); return r.json(); }
+
+async function refresh(){
+  btnRefresh.disabled=true; btnRefresh.textContent="Osvježavam…";
+  try{
+    const eur=await fetchJSON("https://api.binance.com/api/v3/ticker/price?symbol=EURUSDT");
+    EURRATE=parseFloat(eur.price);
+    const syms=JSON.stringify(TOKENS.map(x=>x.b));
+    const tick=await fetchJSON("https://api.binance.com/api/v3/ticker/24hr?symbols="+encodeURIComponent(syms));
+    const t24={}; tick.forEach(x=>t24[x.symbol]=parseFloat(x.priceChangePercent));
+    const res=await Promise.allSettled(TOKENS.map(x=>
+      fetchJSON("https://api.binance.com/api/v3/klines?symbol="+x.b+"&interval=1h&limit=100")));
+    res.forEach((r,i)=>{
+      const tk=TOKENS[i];
+      if(r.status!=="fulfilled"){ DATA[tk.t]={err:true}; return; }
+      const k=r.value;
+      const closed=k.slice(0,-1);                    // izbaci svijeću koja još traje
+      const closes=closed.map(c=>parseFloat(c[4]));
+      const last=closed[closed.length-1];
+      const lastGreen=parseFloat(last[4])>parseFloat(last[1]);
+      const liveUsd=parseFloat(k[k.length-1][4]);    // zadnja (živa) cijena
+      DATA[tk.t]={
+        eur: liveUsd/EURRATE,
+        chg24: t24[tk.b],
+        rsi: rsi(closes.slice(-60)),
+        lastGreen,
+        spark: closes.slice(-48)
+      };
+    });
+    lastTime.textContent=new Date().toLocaleTimeString("hr-HR");
+  }catch(e){
+    lastTime.textContent="greška ("+e.message+") — probaj ponovno";
+  }
+  btnRefresh.disabled=false; btnRefresh.textContent="Osvježi signale";
+  render();
+}
+
+/* ---------- signal ---------- */
+function signalOf(d){
+  if(!d||d.err||!isFinite(d.rsi)) return "err";
+  if(d.rsi<PAR.rsiBuy && d.lastGreen) return "kupi";
+  if(d.rsi>PAR.rsiHot) return "pregrijan";
+  return "cekaj";
+}
+
+/* ---------- sparkline ---------- */
+function spark(vals){
+  if(!vals||vals.length<2) return "";
+  const w=120,h=26,min=Math.min(...vals),max=Math.max(...vals),rng=(max-min)||1;
+  const pts=vals.map((v,i)=>((i/(vals.length-1))*w).toFixed(1)+","+((h-2)-((v-min)/rng)*(h-4)).toFixed(1)).join(" ");
+  const col=vals[vals.length-1]>=vals[0]?"var(--green)":"var(--red)";
+  return '<svg class="spark" width="'+w+'" height="'+h+'"><polyline fill="none" stroke="'+col+'" stroke-width="1.5" points="'+pts+'"/></svg>';
+}
+
+/* ---------- zvuk ---------- */
+let AC=null;
+function beep(){
+  if(!chkBeep.checked) return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.frequency.value=880; g.gain.value=0.08;
+    o.connect(g); g.connect(AC.destination);
+    o.start(); o.stop(AC.currentTime+0.25);
+  }catch(e){}
+}
+
+/* ---------- render ---------- */
+let prevKupi=new Set();
+function render(){
+  // --- signali ---
+  const rows=TOKENS.map(x=>({t:x.t,d:DATA[x.t]})).filter(r=>r.d);
+  const order={kupi:0,cekaj:1,pregrijan:2,err:3};
+  rows.sort((a,b)=>{
+    const sa=signalOf(a.d),sb=signalOf(b.d);
+    if(order[sa]!==order[sb]) return order[sa]-order[sb];
+    return (a.d.rsi||99)-(b.d.rsi||99);
+  });
+  let nK=0,nC=0,nH=0;
+  const nowKupi=new Set();
+  tbSignals.innerHTML = rows.length? rows.map(r=>{
+    const d=r.d,s=signalOf(d);
+    if(s==="kupi"){nK++;nowKupi.add(r.t);} else if(s==="cekaj")nC++; else if(s==="pregrijan")nH++;
+    if(s==="err") return '<tr><td><b>'+r.t+'</b></td><td colspan="6" class="flat">nema podataka s Binancea</td></tr>';
+    const chg=isFinite(d.chg24)?'<span class="'+(d.chg24>=0?"up":"down")+' num">'+(d.chg24>=0?"▲ ":"▼ ")+fmt(Math.abs(d.chg24),2)+' %</span>':"—";
+    const badge= s==="kupi"?'<span class="badge kupi">KUPI</span>'
+              : s==="pregrijan"?'<span class="badge pregrijan">PREGRIJAN</span>'
+              : '<span class="badge cekaj">ČEKAJ</span>';
+    const btn= s==="kupi"?'<button class="kbtn" onclick="prefill(\''+r.t+'\')">Kupio sam →</button>':"";
+    return '<tr><td><b>'+r.t+'</b></td><td class="num">'+fmt(d.eur)+'</td><td>'+chg+
+           '</td><td class="hidemob">'+spark(d.spark)+'</td><td class="num">'+fmt(d.rsi,0)+
+           '</td><td>'+badge+'</td><td>'+btn+'</td></tr>';
+  }).join("") : '<tr><td colspan="7">Klikni "Osvježi signale".</td></tr>';
+  cntKupi.textContent=nK; cntCekaj.textContent=nC; cntHot.textContent=nH;
+  let newSignal=false;
+  nowKupi.forEach(t=>{ if(!prevKupi.has(t)) newSignal=true; });
+  prevKupi=nowKupi;
+
+  // --- pozicije ---
+  let anyAlarm=false;
+  tbPos.innerHTML = POS.length? POS.map((p,i)=>{
+    const d=DATA[p.t], cur=d&&!d.err?d.eur:NaN;
+    const stopP=p.ulaz*(1-PAR.sl/100), tpP=p.ulaz*(1+PAR.tp/100);
+    let plTxt="—",cls="flat",st='<span class="badge cekaj">DRŽI</span>',rowCls="";
+    if(isFinite(cur)){
+      const grossPct=(cur-p.ulaz)/p.ulaz;
+      const netPct=grossPct-2*FEE;
+      const netEur=p.ulog*netPct;
+      cls=netEur>=0?"up":"down";
+      plTxt=(netPct>=0?"+":"")+fmt(netPct*100,2)+" % ("+(netEur>=0?"+":"")+fmt(netEur,2)+" € neto)";
+      if(cur>=tpP){ st='<span class="badge prodaj">PRODAJ — cilj!</span>'; rowCls="alarm"; anyAlarm=true; }
+      else if(cur<=stopP){ st='<span class="badge stop">STOP probijen</span>'; rowCls="alarmstop"; anyAlarm=true; }
+    }
+    return '<tr class="'+rowCls+'"><td><b>'+p.t+'</b></td><td class="num">'+fmt(p.ulaz)+
+      '</td><td class="num">'+(isFinite(cur)?fmt(cur):"—")+'</td><td class="num '+cls+'">'+plTxt+
+      '</td><td class="num hidemob">'+fmt(stopP)+'</td><td class="num hidemob">'+fmt(tpP)+
+      '</td><td>'+st+'</td><td><button class="kbtn" onclick="closePos('+i+')">Zatvori…</button></td></tr>';
+  }).join("") : '<tr><td colspan="8">Nema otvorenih pozicija.</td></tr>';
+  if(anyAlarm||newSignal) beep();
+  document.title=(anyAlarm?"⚡ ":"")+"Valovi — Satni val";
+
+  // --- dnevnik ---
+  tbLog.innerHTML = LOG.length? LOG.map(e=>{
+    const cls=e.pl>=0?"up":"down";
+    return '<tr><td class="num">'+e.kad+'</td><td><b>'+e.t+'</b></td><td class="num">'+fmt(e.ulaz)+
+      '</td><td class="num">'+fmt(e.izlaz)+'</td><td class="num '+cls+'">'+(e.pl>=0?"+":"")+fmt(e.pl,2)+' €</td></tr>';
+  }).join("") : '<tr><td colspan="5">Još nema zatvorenih trejdova.</td></tr>';
+  const tot=LOG.reduce((s,e)=>s+e.pl,0);
+  totPl.textContent=(tot>=0?"+":"")+fmt(tot,2)+" €";
+  totPl.className="num "+(tot>=0?"up":"down");
+  totW.textContent=LOG.filter(e=>e.pl>=0).length;
+  totL.textContent=LOG.filter(e=>e.pl<0).length;
+}
+
+/* ---------- akcije ---------- */
+window.prefill=function(t){
+  fTok.value=t;
+  const d=DATA[t]; if(d&&!d.err) fUlaz.value=fmt(d.eur);
+  fUlog.value=fmt(PAR.ulog,0);
+  fUlaz.scrollIntoView({behavior:"smooth",block:"center"});
+  fUlaz.focus();
+};
+btnAddPos.onclick=()=>{
+  const t=fTok.value, ulaz=parseNum(fUlaz.value), ulog=parseInput(fUlog.value)||PAR.ulog;
+  if(!t||!isFinite(ulaz)||ulaz<=0){ alert("Upiši ispravnu ulaznu cijenu (npr. 0,1621)."); return; }
+  if(POS.some(p=>p.t===t)){ alert(t+" je već otvoren — zatvori staru poziciju prvo."); return; }
+  POS.push({t,ulaz,ulog,kad:new Date().toISOString()});
+  savePos(); fUlaz.value=""; render();
+};
+window.closePos=function(i){
+  const p=POS[i]; if(!p) return;
+  const d=DATA[p.t];
+  const def=d&&!d.err?fmt(d.eur):"";
+  const s=prompt("Stvarna izlazna cijena na Revolutu za "+p.t+" (€):",def);
+  if(s===null) return;
+  const izlaz=parseNum(s);
+  if(!isFinite(izlaz)||izlaz<=0){ alert("Neispravna cijena."); return; }
+  const netPct=(izlaz-p.ulaz)/p.ulaz-2*FEE;
+  LOG.unshift({kad:new Date().toLocaleString("hr-HR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}),
+               t:p.t,ulaz:p.ulaz,izlaz,pl:p.ulog*netPct});
+  POS.splice(i,1); savePos(); saveLog(); render();
+};
+
+/* ---------- init ---------- */
+TOKENS.forEach(x=>{ const o=document.createElement("option"); o.value=o.textContent=x.t; fTok.appendChild(o); });
+btnRefresh.onclick=refresh;
+setInterval(()=>{ if(chkAuto.checked) refresh(); },60000);
+refresh();
+</script>
+</body>
+</html>
