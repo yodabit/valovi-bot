@@ -15,6 +15,10 @@
   {
    "sym": "ALGO",
    "type": "market"
+  },
+  {
+   "sym": "UNI",
+   "type": "market"
   }
  ]
 }
