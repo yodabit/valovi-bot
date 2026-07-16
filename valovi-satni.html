@@ -146,10 +146,10 @@
 </table>
 
 <h2>Dnevnik trejdova <small>najnoviji prvi · pamti se na ovom uređaju</small></h2>
-<p class="totline">Ukupni realizirani neto P/L: <b id="totPl">0,00 €</b> · Dobitni: <b id="totW">0</b> · Gubitni: <b id="totL">0</b></p>
+<p class="totline">Ukupni realizirani neto P/L: <b id="totPl">0,00 €</b> · Dobitni: <b id="totW">0</b> · Gubitni: <b id="totL">0</b> · <button class="kbtn" id="btnReset" style="margin-left:6px">🗑 Resetiraj sve iz nule</button></p>
 <table>
-  <thead><tr><th>Vrijeme</th><th>Token</th><th>Ulaz €</th><th>Izlaz €</th><th>Neto P/L</th></tr></thead>
-  <tbody id="tbLog"><tr><td colspan="5">Još nema zatvorenih trejdova.</td></tr></tbody>
+  <thead><tr><th>Kupljeno</th><th>Prodano</th><th>Token</th><th>Ulaz €</th><th>Izlaz €</th><th>Neto P/L</th></tr></thead>
+  <tbody id="tbLog"><tr><td colspan="6">Još nema zatvorenih trejdova.</td></tr></tbody>
 </table>
 
 <p class="foot">Edukativni alat, ne predstavlja investicijski savjet. Signali su izračunati iz javnih podataka (Binance, USDT parovi preračunati u EUR preko EURUSDT tečaja) i ne jamče buduće rezultate. Ploča ne izvršava naloge — kupnja i prodaja rade se ručno na Revolutu X, odluke i rizik su tvoji. Cijene na Revolutu mogu odstupati od Binancea (spread) — u dnevnik upisuj stvarne Revolut cijene.</p>
@@ -174,9 +174,15 @@ const LS_PAR="satni_params", LS_POS="satni_pozicije", LS_LOG="satni_dnevnik";
 function fmt(n,dec){ if(!isFinite(n))return "—";
   if(dec===undefined) dec = n>=1000?0 : n>=100?2 : n>=1?4 : n>=0.01?4 : 8;
   return n.toLocaleString("hr-HR",{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
-function parseNum(s){ if(typeof s!=="string") return NaN;
-  return parseFloat(s.trim().replace(/\./g,"").replace(",",".").replace(/[^\d.\-]/g,"")||
-                    s.trim().replace(",",".")); }
+function parseNum(s){
+  s=String(s).trim().replace(/\s/g,"").replace(/€/g,"");
+  if(!s) return NaN;
+  const dots=(s.match(/\./g)||[]).length;
+  if(s.includes(",")){ s=s.replace(/\./g,"").replace(",","."); } // 1.234,56 → 1234.56
+  else if(dots>1){ s=s.replace(/\./g,""); }                      // 1.234.567 → 1234567
+  // jedna točka bez zareza (80.503) = decimalna točka, ostavi kako jest
+  return parseFloat(s.replace(/[^\d.\-]/g,""));
+}
 function parseInput(s){ // jednostavniji, siguran parser za kućice: "2,5" ili "2.5"
   return parseFloat(String(s).trim().replace(",",".")); }
 
@@ -397,7 +403,9 @@ function render(){
       if(cur>=tpP){ st='<span class="badge prodaj">PRODAJ — cilj!</span>'; rowCls="alarm"; anyAlarm=true; }
       else if(cur<=stopP){ st='<span class="badge stop">STOP probijen</span>'; rowCls="alarmstop"; anyAlarm=true; }
     }
-    return '<tr class="'+rowCls+'"><td><b>'+p.t+'</b></td><td class="num">'+fmt(p.ulaz)+
+    return '<tr class="'+rowCls+'"><td><b>'+p.t+'</b><br><small>kupljeno '+
+      new Date(p.kad).toLocaleString("hr-HR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})+
+      '</small></td><td class="num">'+fmt(p.ulaz)+
       '</td><td class="num">'+(isFinite(cur)?fmt(cur):"—")+'</td><td class="num '+cls+'">'+plTxt+
       '</td><td class="num hidemob">'+fmt(stopP)+'</td><td class="num hidemob">'+fmt(tpP)+
       '</td><td>'+st+'</td><td><button class="kbtn" onclick="closePos('+i+')">Zatvori…</button></td></tr>';
@@ -408,9 +416,9 @@ function render(){
   // --- dnevnik ---
   tbLog.innerHTML = LOG.length? LOG.map(e=>{
     const cls=e.pl>=0?"up":"down";
-    return '<tr><td class="num">'+e.kad+'</td><td><b>'+e.t+'</b></td><td class="num">'+fmt(e.ulaz)+
+    return '<tr><td class="num">'+(e.kupljeno||"—")+'</td><td class="num">'+e.kad+'</td><td><b>'+e.t+'</b></td><td class="num">'+fmt(e.ulaz)+
       '</td><td class="num">'+fmt(e.izlaz)+'</td><td class="num '+cls+'">'+(e.pl>=0?"+":"")+fmt(e.pl,2)+' €</td></tr>';
-  }).join("") : '<tr><td colspan="5">Još nema zatvorenih trejdova.</td></tr>';
+  }).join("") : '<tr><td colspan="6">Još nema zatvorenih trejdova.</td></tr>';
   const tot=LOG.reduce((s,e)=>s+e.pl,0);
   totPl.textContent=(tot>=0?"+":"")+fmt(tot,2)+" €";
   totPl.className="num "+(tot>=0?"up":"down");
@@ -442,12 +450,18 @@ window.closePos=function(i){
   const izlaz=parseNum(s);
   if(!isFinite(izlaz)||izlaz<=0){ alert("Neispravna cijena."); return; }
   const netPct=(izlaz-p.ulaz)/p.ulaz-2*FEE;
-  LOG.unshift({kad:new Date().toLocaleString("hr-HR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}),
+  const dOpt={day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"};
+  LOG.unshift({kupljeno:new Date(p.kad).toLocaleString("hr-HR",dOpt),
+               kad:new Date().toLocaleString("hr-HR",dOpt),
                t:p.t,ulaz:p.ulaz,izlaz,pl:p.ulog*netPct});
   POS.splice(i,1); savePos(); saveLog(); render();
 };
 
 /* ---------- init ---------- */
+btnReset.onclick=()=>{
+  if(!confirm("Obrisati SVE pozicije i cijeli dnevnik? Ovo se ne može poništiti.")) return;
+  POS=[]; LOG=[]; savePos(); saveLog(); render();
+};
 TOKENS.forEach(x=>{ const o=document.createElement("option"); o.value=o.textContent=x.t; fTok.appendChild(o); });
 btnRefresh.onclick=refresh;
 setInterval(()=>{ if(chkAuto.checked) refresh(); },60000);
