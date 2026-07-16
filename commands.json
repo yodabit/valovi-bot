@@ -3,6 +3,10 @@
   {
    "sym": "ATOM",
    "type": "market"
+  },
+  {
+   "sym": "NEAR",
+   "type": "market"
   }
  ]
 }
