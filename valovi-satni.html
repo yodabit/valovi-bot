@@ -53,6 +53,9 @@
   .badge.cekaj{color:var(--muted);border-color:var(--border)}
   .badge.pregrijan{color:var(--gold);border-color:var(--gold);background:rgba(232,194,104,.07)}
   .badge.spreman{color:var(--teal);border-color:var(--teal);background:rgba(45,212,191,.08)}
+  .badge.potZ{color:var(--green);border-color:var(--green);background:rgba(74,222,128,.06)}
+  .badge.potG{color:var(--gold);border-color:var(--gold);background:rgba(232,194,104,.06)}
+  .badge.potR{color:var(--red);border-color:var(--red);background:rgba(242,109,109,.07)}
   .badge.prodaj{color:#04211d;border-color:var(--green);background:var(--green)}
   .badge.stop{color:#fff;border-color:var(--red);background:var(--red)}
   .kbtn{padding:4px 10px;font-size:12px;border-radius:6px}
@@ -116,7 +119,7 @@
   <div><label>Ulog € po tokenu</label><input id="pUlog" value="20"></div>
   <div style="align-self:flex-end"><button id="btnSaveParams">💾 Spremi</button></div>
 </div>
-<p class="hint"><b>SPREMAN</b> = RSI(14) na satnim svijećama pao ispod praga — token je pri dnu vala, ali još pada; ne kupuj dok prva svijeća ne pozeleni. <b>KUPI · X %</b> = RSI ispod praga <b>i</b> zadnja zatvorena svijeća zelena — odskok krenuo; postotak je koliko odskoka do cilja (+TP %) još nije potrošeno. 100 % = ništa nisi propustio, ispod 30 % badge postaje <b>KASNO</b> (ne ulazi, pri kraju vrha si), <b>ISTEKLO</b> = cijena pala ispod stopa, čekaj novi signal. <b>PREGRIJAN</b> = RSI iznad gornjeg praga — ako držiš, razmisli o pobiranju. Svijeća se zatvara jednom na sat, pa se signali mijenjaju najviše jednom na sat po tokenu. <b>Signal od</b>: vrijeme kad je signal nastao (računa se iz svijeća, točno i ako je ploča bila zatvorena). Naknade 0,09 % po strani već su uračunate u neto P/L.</p>
+<p class="hint"><b>SPREMAN</b> = RSI(14) na satnim svijećama pao ispod praga — token je pri dnu vala, ali još pada; ne kupuj dok prva svijeća ne pozeleni. <b>POTROŠENO X %</b> = koliko je odskoka od dna vala već pojedeno, mjereno prema cilju (+TP %): 0 % = token još sjedi na dnu, ništa nisi zakasnio; 90 % = oporavak skoro gotov, kasno je. Zeleno &lt;30 %, žuto 30–60 %, crveno &gt;60 %. Kod KUPI ispod 30 % preostalog badge postaje <b>KASNO</b>; <b>ISTEKLO</b> = cijena pala ispod stopa, čekaj novi signal. <b>PREGRIJAN</b> = RSI iznad gornjeg praga — ako držiš, razmisli o pobiranju. Svijeća se zatvara jednom na sat, pa se signali mijenjaju najviše jednom na sat po tokenu. <b>Signal od</b>: vrijeme kad je signal nastao (računa se iz svijeća, točno i ako je ploča bila zatvorena). Naknade 0,09 % po strani već su uračunate u neto P/L.</p>
 
 <h2>Signali <small>samo tokeni dostupni na Revolutu X (EUR parovi, filtrirani po volumenu) · cijene u EUR</small></h2>
 <table>
@@ -314,41 +317,50 @@ function render(){
     if(s==="kupi"){nK++;nowKupi.add(r.t);} else if(s==="spreman")nS++; else if(s==="cekaj")nC++; else if(s==="pregrijan")nH++;
     if(s==="err") return '<tr><td><b>'+r.t+'</b></td><td colspan="7" class="flat">nema podataka s Binancea</td></tr>';
     const chg=isFinite(d.chg24)?'<span class="'+(d.chg24>=0?"up":"down")+' num">'+(d.chg24>=0?"▲ ":"▼ ")+fmt(Math.abs(d.chg24),2)+' %</span>':"—";
-    // --- kada je signal nastao + koliko još vrijedi ---
-    let info="", val=null, expired=false;
+    // --- kada je signal nastao + koliko je odskoka potrošeno ---
+    let info="", val=null, expired=false, spent=null;
     if((s==="kupi"||s==="spreman") && d.closes){
       const ok= s==="kupi"
         ? i=> d.rsiSer[i]<PAR.rsiBuy && d.green[i]
         : i=> d.rsiSer[i]<PAR.rsiBuy;
       let j=d.closes.length-1;
       while(j>0 && ok(j-1)) j--;
+      // dno vala: najniža cijena otkad je RSI pao ispod praga
+      let jS=d.closes.length-1;
+      while(jS>0 && d.rsiSer[jS-1]<PAR.rsiBuy) jS--;
+      const low=Math.min(Math.min.apply(null,d.closes.slice(jS)), d.usd);
+      const bounce=(d.usd-low)/low*100;                       // koliko je već odskočio od dna
+      spent=Math.max(0,Math.min(100,bounce/PAR.tp*100));      // % cilja koji je već pojeden
+      val=100-spent;
       const t0=d.times[j];
       const mins=Math.max(0,Math.round((Date.now()-t0)/60000));
       const ageTxt= mins<60? "prije "+mins+" min" : "prije "+fmt(mins/60,1)+" h";
       const timeTxt=new Date(t0).toLocaleTimeString("hr-HR",{hour:"2-digit",minute:"2-digit"});
-      const p0=d.closes[j];
-      const moved=(d.usd-p0)/p0*100;
       if(s==="kupi"){
-        if(moved<=-PAR.sl){
+        const p0=d.closes[j];
+        const movedSig=(d.usd-p0)/p0*100;
+        if(movedSig<=-PAR.sl){
           expired=true;
           info='<span class="down">cijena pala ispod stopa — čekaj novi signal</span><br><small>signal od '+timeTxt+' · '+ageTxt+'</small>';
         }else{
-          val=Math.max(0,Math.min(100,(PAR.tp-moved)/PAR.tp*100));
           const col= val>60?"var(--green)": val>30?"var(--gold)":"var(--red)";
           info='od <b class="num">'+timeTxt+'</b> · '+ageTxt+
             '<div class="vbar"><div style="width:'+val.toFixed(0)+'%;background:'+col+'"></div></div>'+
-            '<small>cijena od signala '+(moved>=0?"+":"")+fmt(moved,2)+' %</small>';
+            '<small>odskok od dna '+(bounce>=0?"+":"")+fmt(bounce,2)+' %</small>';
         }
       }else{
-        info='<small>RSI ispod praga od '+timeTxt+' · '+ageTxt+' · cijena od tada '+(moved>=0?"+":"")+fmt(moved,2)+' % — postotak kreće tek na KUPI</small>';
+        info='<small>RSI ispod praga od '+timeTxt+' · '+ageTxt+'</small>';
       }
     }
-    const badge= s==="kupi"?( expired ? '<span class="badge cekaj">ISTEKLO</span>'
-              : val>=30 ? '<span class="badge kupi">KUPI · '+fmt(val,0)+' %</span>'
-              : '<span class="badge pregrijan">KASNO · '+fmt(val,0)+' %</span>')
+    const potBadge= (spent!==null && !expired)
+      ? ' <span class="badge '+(spent<30?"potZ":spent<60?"potG":"potR")+'">POTROŠENO '+fmt(spent,0)+' %</span>'
+      : "";
+    const badge= (s==="kupi"?( expired ? '<span class="badge cekaj">ISTEKLO</span>'
+              : val>=30 ? '<span class="badge kupi">KUPI</span>'
+              : '<span class="badge pregrijan">KASNO</span>')
               : s==="spreman"?'<span class="badge spreman">SPREMAN — čeka odskok</span>'
               : s==="pregrijan"?'<span class="badge pregrijan">PREGRIJAN</span>'
-              : '<span class="badge cekaj">ČEKAJ</span>';
+              : '<span class="badge cekaj">ČEKAJ</span>') + potBadge;
     const btn= (s==="kupi" && !expired)?'<button class="kbtn" onclick="prefill(\''+r.t+'\')">Kupio sam →</button>':"";
     return '<tr><td><b>'+r.t+'</b></td><td class="num">'+fmt(d.eur)+'</td><td>'+chg+
            '</td><td class="hidemob">'+spark(d.spark)+'</td><td class="num">'+fmt(d.rsi,0)+
