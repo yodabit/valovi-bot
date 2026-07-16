@@ -52,6 +52,7 @@
   .badge.kupi{color:var(--green);border-color:var(--green);background:rgba(74,222,128,.08)}
   .badge.cekaj{color:var(--muted);border-color:var(--border)}
   .badge.pregrijan{color:var(--gold);border-color:var(--gold);background:rgba(232,194,104,.07)}
+  .badge.spreman{color:var(--teal);border-color:var(--teal);background:rgba(45,212,191,.08)}
   .badge.prodaj{color:#04211d;border-color:var(--green);background:var(--green)}
   .badge.stop{color:#fff;border-color:var(--red);background:var(--red)}
   .kbtn{padding:4px 10px;font-size:12px;border-radius:6px}
@@ -72,6 +73,10 @@
   .posform select{font-family:inherit;min-width:110px}
   tr.alarm td{background:rgba(74,222,128,.10)!important}
   tr.alarmstop td{background:rgba(242,109,109,.12)!important}
+  .vbar{height:5px;background:var(--panel2);border:1px solid var(--border);
+    border-radius:3px;margin:4px 0 2px;max-width:170px;overflow:hidden}
+  .vbar div{height:100%;border-radius:3px}
+  td small{color:var(--muted);font-size:11px}
   .foot{color:var(--muted);font-size:12px;margin-top:30px;border-top:1px solid var(--border);padding-top:12px}
   .totline{font-size:13.5px;margin:6px 0 14px;color:var(--muted)}
   .totline b{font-family:var(--font-num)}
@@ -95,6 +100,7 @@
   <button class="primary" id="btnRefresh">Osvježi signale</button>
   <span class="chip">Zadnje osvježeno: <b id="lastTime">—</b></span>
   <span class="chip">KUPI: <b class="buy" id="cntKupi">0</b></span>
+  <span class="chip">SPREMAN: <b id="cntSpreman">0</b></span>
   <span class="chip">ČEKAJ: <b id="cntCekaj">0</b></span>
   <span class="chip">PREGRIJAN: <b id="cntHot">0</b></span>
   <span class="chip"><label style="cursor:pointer"><input type="checkbox" id="chkAuto" checked> auto-osvježi 60 s</label></span>
@@ -110,15 +116,15 @@
   <div><label>Ulog € po tokenu</label><input id="pUlog" value="20"></div>
   <div style="align-self:flex-end"><button id="btnSaveParams">💾 Spremi</button></div>
 </div>
-<p class="hint"><b>KUPI</b> = RSI(14) na satnim svijećama pao ispod praga (val pri dnu) <b>i</b> zadnja zatvorena svijeća zelena (odskok krenuo). <b>PREGRIJAN</b> = RSI iznad gornjeg praga — ako držiš, razmisli o pobiranju. Naknade 0,09 % po strani već su uračunate u neto P/L.</p>
+<p class="hint"><b>SPREMAN</b> = RSI(14) na satnim svijećama pao ispod praga — token je pri dnu vala, ali još pada; ne kupuj dok prva svijeća ne pozeleni. <b>KUPI</b> = RSI ispod praga <b>i</b> zadnja zatvorena svijeća zelena — odskok krenuo, sad je ulaz. <b>PREGRIJAN</b> = RSI iznad gornjeg praga — ako držiš, razmisli o pobiranju. Svijeća se zatvara jednom na sat, pa se signali mijenjaju najviše jednom na sat po tokenu. <b>Signal od · vrijedi još</b>: vrijeme kad je signal nastao (računa se iz svijeća, točno i ako je ploča bila zatvorena) i koliko je cilja od +TP % još preostalo — 100 % = ništa nisi propustio, 0 % ili "isteklo" = odskok je već potrošen, ne ulazi. Naknade 0,09 % po strani već su uračunate u neto P/L.</p>
 
 <h2>Signali <small>samo tokeni dostupni na Revolutu X (EUR parovi, filtrirani po volumenu) · cijene u EUR</small></h2>
 <table>
   <thead><tr>
     <th>Token</th><th>Cijena (EUR)</th><th>24 h</th>
-    <th class="hidemob">Val — zadnjih 48 h</th><th>RSI(14) 1h</th><th>Signal</th><th></th>
+    <th class="hidemob">Val — zadnjih 48 h</th><th>RSI(14) 1h</th><th>Signal</th><th>Signal od · vrijedi još</th><th></th>
   </tr></thead>
-  <tbody id="tbSignals"><tr><td colspan="7">Učitavam…</td></tr></tbody>
+  <tbody id="tbSignals"><tr><td colspan="8">Učitavam…</td></tr></tbody>
 </table>
 
 <h2>Moje pozicije (Revolut) <small>upiši što si stvarno kupio — ploča prati stop i cilj uživo</small></h2>
@@ -200,19 +206,22 @@ function savePos(){ localStorage.setItem(LS_POS,JSON.stringify(POS)); }
 function saveLog(){ localStorage.setItem(LS_LOG,JSON.stringify(LOG)); }
 
 /* ---------- RSI(14), Wilder ---------- */
-function rsi(closes,period=14){
-  if(closes.length<period+1) return NaN;
+function rsiSeries(closes,period=14){
+  const out=new Array(closes.length).fill(NaN);
+  if(closes.length<period+1) return out;
   let g=0,l=0;
   for(let i=1;i<=period;i++){ const d=closes[i]-closes[i-1]; if(d>0)g+=d; else l-=d; }
   let ag=g/period, al=l/period;
+  out[period]= al===0?100:100-100/(1+ag/al);
   for(let i=period+1;i<closes.length;i++){
     const d=closes[i]-closes[i-1];
     ag=(ag*(period-1)+(d>0?d:0))/period;
     al=(al*(period-1)+(d<0?-d:0))/period;
+    out[i]= al===0?100:100-100/(1+ag/al);
   }
-  if(al===0) return 100;
-  return 100-100/(1+ag/al);
+  return out;
 }
+function rsi(closes,period=14){ const s=rsiSeries(closes,period); return s[s.length-1]; }
 
 /* ---------- podaci ---------- */
 let DATA={};        // t -> {eur, chg24, rsi, lastGreen, spark[]}
@@ -235,15 +244,18 @@ async function refresh(){
       const k=r.value;
       const closed=k.slice(0,-1);                    // izbaci svijeću koja još traje
       const closes=closed.map(c=>parseFloat(c[4]));
-      const last=closed[closed.length-1];
-      const lastGreen=parseFloat(last[4])>parseFloat(last[1]);
+      const times=closed.map(c=>c[6]);               // vrijeme zatvaranja svijeće (ms)
+      const green=closed.map(c=>parseFloat(c[4])>parseFloat(c[1]));
+      const rsiSer=rsiSeries(closes);
       const liveUsd=parseFloat(k[k.length-1][4]);    // zadnja (živa) cijena
       DATA[tk.t]={
+        usd: liveUsd,
         eur: liveUsd/EURRATE,
         chg24: t24[tk.b],
-        rsi: rsi(closes.slice(-60)),
-        lastGreen,
-        spark: closes.slice(-48)
+        rsi: rsiSer[rsiSer.length-1],
+        lastGreen: green[green.length-1],
+        spark: closes.slice(-48),
+        closes, times, green, rsiSer
       };
     });
     lastTime.textContent=new Date().toLocaleTimeString("hr-HR");
@@ -257,7 +269,7 @@ async function refresh(){
 /* ---------- signal ---------- */
 function signalOf(d){
   if(!d||d.err||!isFinite(d.rsi)) return "err";
-  if(d.rsi<PAR.rsiBuy && d.lastGreen) return "kupi";
+  if(d.rsi<PAR.rsiBuy) return d.lastGreen ? "kupi" : "spreman";
   if(d.rsi>PAR.rsiHot) return "pregrijan";
   return "cekaj";
 }
@@ -289,28 +301,57 @@ let prevKupi=new Set();
 function render(){
   // --- signali ---
   const rows=TOKENS.map(x=>({t:x.t,d:DATA[x.t]})).filter(r=>r.d);
-  const order={kupi:0,cekaj:1,pregrijan:2,err:3};
+  const order={kupi:0,spreman:1,cekaj:2,pregrijan:3,err:4};
   rows.sort((a,b)=>{
     const sa=signalOf(a.d),sb=signalOf(b.d);
     if(order[sa]!==order[sb]) return order[sa]-order[sb];
     return (a.d.rsi||99)-(b.d.rsi||99);
   });
-  let nK=0,nC=0,nH=0;
+  let nK=0,nC=0,nH=0,nS=0;
   const nowKupi=new Set();
   tbSignals.innerHTML = rows.length? rows.map(r=>{
     const d=r.d,s=signalOf(d);
-    if(s==="kupi"){nK++;nowKupi.add(r.t);} else if(s==="cekaj")nC++; else if(s==="pregrijan")nH++;
-    if(s==="err") return '<tr><td><b>'+r.t+'</b></td><td colspan="6" class="flat">nema podataka s Binancea</td></tr>';
+    if(s==="kupi"){nK++;nowKupi.add(r.t);} else if(s==="spreman")nS++; else if(s==="cekaj")nC++; else if(s==="pregrijan")nH++;
+    if(s==="err") return '<tr><td><b>'+r.t+'</b></td><td colspan="7" class="flat">nema podataka s Binancea</td></tr>';
     const chg=isFinite(d.chg24)?'<span class="'+(d.chg24>=0?"up":"down")+' num">'+(d.chg24>=0?"▲ ":"▼ ")+fmt(Math.abs(d.chg24),2)+' %</span>':"—";
     const badge= s==="kupi"?'<span class="badge kupi">KUPI</span>'
+              : s==="spreman"?'<span class="badge spreman">SPREMAN — čeka odskok</span>'
               : s==="pregrijan"?'<span class="badge pregrijan">PREGRIJAN</span>'
               : '<span class="badge cekaj">ČEKAJ</span>';
+    // --- kada je signal nastao + koliko još vrijedi ---
+    let info="";
+    if((s==="kupi"||s==="spreman") && d.closes){
+      const ok= s==="kupi"
+        ? i=> d.rsiSer[i]<PAR.rsiBuy && d.green[i]
+        : i=> d.rsiSer[i]<PAR.rsiBuy;
+      let j=d.closes.length-1;
+      while(j>0 && ok(j-1)) j--;
+      const t0=d.times[j];
+      const mins=Math.max(0,Math.round((Date.now()-t0)/60000));
+      const ageTxt= mins<60? "prije "+mins+" min" : "prije "+fmt(mins/60,1)+" h";
+      const timeTxt=new Date(t0).toLocaleTimeString("hr-HR",{hour:"2-digit",minute:"2-digit"});
+      if(s==="kupi"){
+        const p0=d.closes[j];
+        const moved=(d.usd-p0)/p0*100;
+        if(moved<=-PAR.sl){
+          info='<span class="down">isteklo — cijena pala ispod stopa</span><br><small>signal od '+timeTxt+' · '+ageTxt+'</small>';
+        }else{
+          const val=Math.max(0,Math.min(100,(PAR.tp-moved)/PAR.tp*100));
+          const col= val>60?"var(--green)": val>30?"var(--gold)":"var(--red)";
+          info='od <b class="num">'+timeTxt+'</b> · '+ageTxt+
+            '<div class="vbar"><div style="width:'+val.toFixed(0)+'%;background:'+col+'"></div></div>'+
+            '<small>vrijedi još '+fmt(val,0)+' % · cijena od signala '+(moved>=0?"+":"")+fmt(moved,2)+' %</small>';
+        }
+      }else{
+        info='<small>RSI ispod praga od '+timeTxt+' · '+ageTxt+'</small>';
+      }
+    }
     const btn= s==="kupi"?'<button class="kbtn" onclick="prefill(\''+r.t+'\')">Kupio sam →</button>':"";
     return '<tr><td><b>'+r.t+'</b></td><td class="num">'+fmt(d.eur)+'</td><td>'+chg+
            '</td><td class="hidemob">'+spark(d.spark)+'</td><td class="num">'+fmt(d.rsi,0)+
-           '</td><td>'+badge+'</td><td>'+btn+'</td></tr>';
-  }).join("") : '<tr><td colspan="7">Klikni "Osvježi signale".</td></tr>';
-  cntKupi.textContent=nK; cntCekaj.textContent=nC; cntHot.textContent=nH;
+           '</td><td>'+badge+'</td><td>'+info+'</td><td>'+btn+'</td></tr>';
+  }).join("") : '<tr><td colspan="8">Klikni "Osvježi signale".</td></tr>';
+  cntKupi.textContent=nK; cntSpreman.textContent=nS; cntCekaj.textContent=nC; cntHot.textContent=nH;
   let newSignal=false;
   nowKupi.forEach(t=>{ if(!prevKupi.has(t)) newSignal=true; });
   prevKupi=nowKupi;
