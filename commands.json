@@ -1,1 +1,8 @@
-{"cmds": []}
+{
+ "cmds": [
+  {
+   "sym": "ICP",
+   "type": "market"
+  }
+ ]
+}
