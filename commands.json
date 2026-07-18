@@ -3,6 +3,34 @@
   {
    "sym": "ICP",
    "type": "market"
+  },
+  {
+   "sym": "ETC",
+   "type": "market"
+  },
+  {
+   "sym": "HBAR",
+   "type": "market"
+  },
+  {
+   "sym": "ARB",
+   "type": "market"
+  },
+  {
+   "sym": "OP",
+   "type": "market"
+  },
+  {
+   "sym": "FIL",
+   "type": "market"
+  },
+  {
+   "sym": "SEI",
+   "type": "market"
+  },
+  {
+   "sym": "GRT",
+   "type": "market"
   }
  ]
 }
