@@ -912,6 +912,10 @@
     {
      "t": 1784371369234,
      "v": 9861.17
+    },
+    {
+     "t": 1784373254608,
+     "v": 9861.65
     }
    ]
   },
@@ -1459,46 +1463,15 @@
     {
      "t": 1784371369234,
      "v": 9926.12
+    },
+    {
+     "t": 1784373254608,
+     "v": 9925.66
     }
    ]
   },
   "tomo": {
    "positions": {
-    "ICP": {
-     "side": "short",
-     "entry": 2.192,
-     "opened": "15.07. 16:46 UTC",
-     "size": 1000.0,
-     "stop": 2.180745
-    },
-    "ETC": {
-     "side": "short",
-     "entry": 7.06,
-     "opened": "15.07. 16:46 UTC",
-     "size": 1000.0,
-     "stop": 7.766
-    },
-    "HBAR": {
-     "side": "short",
-     "entry": 0.06755,
-     "opened": "15.07. 17:13 UTC",
-     "size": 1000.0,
-     "stop": 0.07430500000000001
-    },
-    "ARB": {
-     "side": "long",
-     "entry": 0.0877,
-     "opened": "15.07. 17:13 UTC",
-     "size": 1000.0,
-     "stop": 0.08781499999999999
-    },
-    "OP": {
-     "side": "short",
-     "entry": 0.102,
-     "opened": "15.07. 17:13 UTC",
-     "size": 1000.0,
-     "stop": 0.098325
-    },
     "NEAR": {
      "side": "long",
      "entry": 2.054,
@@ -1513,29 +1486,95 @@
      "size": 1000.0,
      "stop": 0.67878
     },
-    "FIL": {
+    "SAND": {
      "side": "short",
-     "entry": 0.775,
-     "opened": "16.07. 09:16 UTC",
+     "entry": 0.0473,
+     "opened": "18.07. 11:14 UTC",
      "size": 1000.0,
-     "stop": 0.8525000000000001
-    },
-    "SEI": {
-     "side": "short",
-     "entry": 0.04774,
-     "opened": "16.07. 09:16 UTC",
-     "size": 1000.0,
-     "stop": 0.052514000000000005
-    },
-    "GRT": {
-     "side": "short",
-     "entry": 0.0176,
-     "opened": "16.07. 14:26 UTC",
-     "size": 1000.0,
-     "stop": 0.017387999999999997
+     "stop": 0.05203000000000001
     }
    },
    "trades": [
+    {
+     "time": "18.07. 11:14 UTC",
+     "sym": "GRT",
+     "side": "short",
+     "entry": 0.0176,
+     "exit": 0.0169,
+     "pl": 37.97,
+     "plPct": 3.8,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "18.07. 11:14 UTC",
+     "sym": "SEI",
+     "side": "short",
+     "entry": 0.04774,
+     "exit": 0.04668,
+     "pl": 20.4,
+     "plPct": 2.04,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "18.07. 11:14 UTC",
+     "sym": "OP",
+     "side": "short",
+     "entry": 0.102,
+     "exit": 0.095,
+     "pl": 66.83,
+     "plPct": 6.68,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "18.07. 11:14 UTC",
+     "sym": "ARB",
+     "side": "long",
+     "entry": 0.0877,
+     "exit": 0.09,
+     "pl": 24.43,
+     "plPct": 2.44,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "18.07. 11:14 UTC",
+     "sym": "HBAR",
+     "side": "short",
+     "entry": 0.06755,
+     "exit": 0.0662,
+     "pl": 18.19,
+     "plPct": 1.82,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "18.07. 11:14 UTC",
+     "sym": "ETC",
+     "side": "short",
+     "entry": 7.06,
+     "exit": 7.02,
+     "pl": 3.87,
+     "plPct": 0.39,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "18.07. 11:14 UTC",
+     "sym": "ICP",
+     "side": "short",
+     "entry": 2.192,
+     "exit": 2.144,
+     "pl": 20.1,
+     "plPct": 2.01,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
+    {
+     "time": "18.07. 11:14 UTC",
+     "sym": "FIL",
+     "side": "short",
+     "entry": 0.775,
+     "exit": 0.756,
+     "pl": 22.72,
+     "plPct": 2.27,
+     "why": "rucno zatvoreno (TOMO, market)"
+    },
     {
      "time": "16.07. 14:25 UTC",
      "sym": "XLM",
@@ -2039,6 +2078,10 @@
     {
      "t": 1784371369234,
      "v": 10231.09
+    },
+    {
+     "t": 1784373254608,
+     "v": 10207.77
     }
    ],
    "limits": {},
@@ -2058,43 +2101,51 @@
     "UNI": "long",
     "LTC": "long",
     "INJ": "long",
-    "XLM": "short"
+    "XLM": "short",
+    "FIL": "short",
+    "ICP": "short",
+    "ETC": "short",
+    "HBAR": "short",
+    "ARB": "long",
+    "OP": "short",
+    "SEI": "short",
+    "GRT": "short"
    },
    "capital": 10000.0,
-   "vault": 95.2
+   "vault": 309.71
   }
  },
- "last_run": "18.07. 10:42 UTC",
+ "last_run": "18.07. 11:14 UTC",
  "last_prices": {
-  "BTC": 63955.22,
-  "ETH": 1843.49,
-  "SOL": 74.83,
-  "XRP": 1.0864,
-  "BNB": 568.08,
-  "DOGE": 0.07213,
-  "ADA": 0.1661,
+  "BTC": 63967.01,
+  "ETH": 1844.4,
+  "SOL": 74.91,
+  "XRP": 1.0862,
+  "BNB": 569.43,
+  "DOGE": 0.07215,
+  "ADA": 0.1659,
   "AVAX": 6.54,
-  "LINK": 8.254,
+  "LINK": 8.271,
   "DOT": 0.837,
   "LTC": 45.38,
-  "BCH": 218.17,
-  "XLM": 0.183451,
-  "UNI": 3.514,
-  "ATOM": 1.49,
-  "NEAR": 1.902,
-  "APT": 0.6089,
-  "AAVE": 87.83,
+  "BCH": 218.2,
+  "XLM": 0.183359,
+  "UNI": 3.515,
+  "ATOM": 1.493,
+  "NEAR": 1.898,
+  "APT": 0.6083,
+  "AAVE": 87.53,
   "FIL": 0.756,
   "ALGO": 0.0823,
-  "ICP": 2.146,
-  "ETC": 7.03,
+  "ICP": 2.144,
+  "ETC": 7.02,
   "HBAR": 0.0662,
-  "ARB": 0.0903,
+  "ARB": 0.09,
   "OP": 0.095,
-  "INJ": 5.093,
+  "INJ": 5.056,
   "SUI": 0.7346,
-  "SEI": 0.04667,
-  "GRT": 0.0168,
+  "SEI": 0.04668,
+  "GRT": 0.0169,
   "SAND": 0.0473
  }
 }
