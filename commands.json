@@ -1,1 +1,12 @@
-{"cmds": []}
+{
+ "cmds": [
+  {
+   "sym": "BNB",
+   "type": "market"
+  },
+  {
+   "sym": "BCH",
+   "type": "market"
+  }
+ ]
+}
