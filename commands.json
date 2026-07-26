@@ -1,12 +1,1 @@
-{
- "cmds": [
-  {
-   "sym": "GRT",
-   "type": "market"
-  },
-  {
-   "sym": "ATOM",
-   "type": "market"
-  }
- ]
-}
+{"cmds": []}
