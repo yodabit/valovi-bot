@@ -1,26 +1,8 @@
 {
  "port": {
   "trend": {
-   "cash": 10443.77762608618,
+   "cash": 10618.065199048047,
    "positions": {
-    "DOGE": {
-     "side": "long",
-     "entry": 0.08811,
-     "opened": "18.09. 22:37 UTC",
-     "stop": 0.09737280000000001
-    },
-    "SOL": {
-     "side": "long",
-     "entry": 108.35,
-     "opened": "20.09. 12:26 UTC",
-     "stop": 114.576
-    },
-    "XRP": {
-     "side": "long",
-     "entry": 1.3783,
-     "opened": "20.09. 12:26 UTC",
-     "stop": 1.544352
-    },
     "ETH": {
      "side": "long",
      "entry": 2727.32,
@@ -44,9 +26,57 @@
      "entry": 0.24942,
      "opened": "23.09. 11:44 UTC",
      "stop": 0.22946640000000001
+    },
+    "AVAX": {
+     "side": "long",
+     "entry": 10.241,
+     "opened": "23.09. 17:07 UTC",
+     "stop": 9.42172
+    },
+    "LINK": {
+     "side": "long",
+     "entry": 12.204,
+     "opened": "23.09. 17:07 UTC",
+     "stop": 11.227680000000001
+    },
+    "DOT": {
+     "side": "long",
+     "entry": 1.0978,
+     "opened": "23.09. 17:07 UTC",
+     "stop": 1.0099760000000002
     }
    },
    "trades": [
+    {
+     "time": "23.09. 17:07 UTC",
+     "sym": "DOGE",
+     "side": "long",
+     "entry": 0.08811,
+     "exit": 0.09192,
+     "pl": 41.44,
+     "plPct": 4.14,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "23.09. 17:07 UTC",
+     "sym": "XRP",
+     "side": "long",
+     "entry": 1.3783,
+     "exit": 1.495,
+     "pl": 82.87,
+     "plPct": 8.29,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "23.09. 17:07 UTC",
+     "sym": "SOL",
+     "side": "long",
+     "entry": 108.35,
+     "exit": 113.96,
+     "pl": 49.98,
+     "plPct": 5.0,
+     "why": "trailing stop — dobit zakljucana"
+    },
     {
      "time": "23.09. 11:44 UTC",
      "sym": "DOT",
@@ -5636,6 +5666,10 @@
     {
      "t": 1790163862989,
      "v": 10773.33
+    },
+    {
+     "t": 1790183279674,
+     "v": 10494.74
     }
    ]
   },
@@ -5652,19 +5686,19 @@
      "side": "short",
      "entry": 1.1491,
      "opened": "20.09. 19:29 UTC",
-     "stop": 1.241028
+     "stop": 1.141712
     },
     "SOL": {
      "side": "short",
      "entry": 118.02,
      "opened": "21.09. 19:33 UTC",
-     "stop": 127.4616
+     "stop": 118.02
     },
     "DOGE": {
      "side": "short",
      "entry": 0.10111,
      "opened": "21.09. 23:19 UTC",
-     "stop": 0.10919880000000001
+     "stop": 0.09559680000000001
     },
     "ETH": {
      "side": "short",
@@ -5682,7 +5716,7 @@
      "side": "short",
      "entry": 1.5821,
      "opened": "22.09. 18:57 UTC",
-     "stop": 1.708668
+     "stop": 1.5548000000000002
     },
     "BTC": {
      "side": "short",
@@ -5694,7 +5728,13 @@
      "side": "short",
      "entry": 0.24942,
      "opened": "23.09. 11:44 UTC",
-     "stop": 0.26937360000000005
+     "stop": 0.2465736
+    },
+    "AVAX": {
+     "side": "short",
+     "entry": 10.241,
+     "opened": "23.09. 17:07 UTC",
+     "stop": 11.06028
     }
    },
    "trades": [
@@ -10979,52 +11019,21 @@
     {
      "t": 1790163862989,
      "v": 8587.09
+    },
+    {
+     "t": 1790183279674,
+     "v": 8927.5
     }
    ]
   },
   "tomo": {
    "positions": {
-    "ETC": {
-     "side": "long",
-     "entry": 7.842,
-     "opened": "18.09. 11:22 UTC",
-     "size": 1000.0,
-     "stop": 9.166535
-    },
-    "DOGE": {
-     "side": "long",
-     "entry": 0.08811,
-     "opened": "18.09. 22:37 UTC",
-     "size": 1000.0,
-     "stop": 0.09787995000000001
-    },
     "BCH": {
      "side": "long",
      "entry": 252.77,
      "opened": "20.09. 01:13 UTC",
      "size": 1000.0,
-     "stop": 336.25424999999996
-    },
-    "FIL": {
-     "side": "long",
-     "entry": 0.96,
-     "opened": "20.09. 01:13 UTC",
-     "size": 1000.0,
-     "stop": 1.009776
-    },
-    "SEI": {
-     "side": "long",
-     "entry": 0.0478,
-     "opened": "20.09. 06:22 UTC",
-     "size": 1000.0,
-     "stop": 0.0592703
-    },
-    "SAND": {
-     "side": "long",
-     "entry": 0.0406,
-     "opened": "21.09. 01:10 UTC",
-     "size": 1000.0,
-     "stop": 0.0425565
+     "stop": 338.1939
     },
     "BTC": {
      "side": "long",
@@ -11040,15 +11049,96 @@
      "size": 1000.0,
      "stop": 2639.3664
     },
-    "SUI": {
+    "BNB": {
      "side": "long",
-     "entry": 1.0055,
-     "opened": "23.09. 11:44 UTC",
+     "entry": 763.75,
+     "opened": "23.09. 17:07 UTC",
      "size": 1000.0,
-     "stop": 0.96528
+     "stop": 733.1999999999999
+    },
+    "ADA": {
+     "side": "long",
+     "entry": 0.23709,
+     "opened": "23.09. 17:07 UTC",
+     "size": 1000.0,
+     "stop": 0.2276064
+    },
+    "OP": {
+     "side": "long",
+     "entry": 0.1242,
+     "opened": "23.09. 17:07 UTC",
+     "size": 1000.0,
+     "stop": 0.119232
+    },
+    "INJ": {
+     "side": "long",
+     "entry": 7.552,
+     "opened": "23.09. 17:07 UTC",
+     "size": 1000.0,
+     "stop": 7.2499199999999995
     }
    },
    "trades": [
+    {
+     "time": "23.09. 17:07 UTC",
+     "sym": "SAND",
+     "side": "long",
+     "entry": 0.0406,
+     "exit": 0.0413,
+     "pl": 15.44,
+     "plPct": 1.54,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "23.09. 17:07 UTC",
+     "sym": "SEI",
+     "side": "long",
+     "entry": 0.0478,
+     "exit": 0.05906,
+     "pl": 233.76,
+     "plPct": 23.38,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "23.09. 17:07 UTC",
+     "sym": "SUI",
+     "side": "long",
+     "entry": 1.0055,
+     "exit": 0.9542,
+     "pl": -52.82,
+     "plPct": -5.28,
+     "why": "automatski stop"
+    },
+    {
+     "time": "23.09. 17:07 UTC",
+     "sym": "ETC",
+     "side": "long",
+     "entry": 7.842,
+     "exit": 8.752,
+     "pl": 114.24,
+     "plPct": 11.42,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "23.09. 17:07 UTC",
+     "sym": "FIL",
+     "side": "long",
+     "entry": 0.96,
+     "exit": 0.9374,
+     "pl": -25.34,
+     "plPct": -2.53,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "23.09. 17:07 UTC",
+     "sym": "DOGE",
+     "side": "long",
+     "entry": 0.08811,
+     "exit": 0.09192,
+     "pl": 41.44,
+     "plPct": 4.14,
+     "why": "trailing stop — dobit zakljucana"
+    },
     {
      "time": "23.09. 11:44 UTC",
      "sym": "ARB",
@@ -16334,6 +16424,10 @@
     {
      "t": 1790163862989,
      "v": 12419.26
+    },
+    {
+     "t": 1790183279674,
+     "v": 12013.6
     }
    ],
    "limits": {},
@@ -16348,43 +16442,49 @@
     "LINK": "long",
     "ALGO": "long",
     "HBAR": "long",
-    "ARB": "long"
+    "ARB": "long",
+    "DOGE": "long",
+    "FIL": "long",
+    "ETC": "long",
+    "SUI": "long",
+    "SEI": "long",
+    "SAND": "long"
    },
    "capital": 10000.0,
-   "vault": 1352.97
+   "vault": 1679.69
   }
  },
- "last_run": "23.09. 11:44 UTC",
+ "last_run": "23.09. 17:07 UTC",
  "last_prices": {
-  "BTC": 85474.06,
-  "ETH": 2717.33,
-  "SOL": 116.54,
-  "XRP": 1.5707,
-  "BNB": 781.63,
-  "DOGE": 0.09908,
-  "ADA": 0.24942,
-  "AVAX": 11.026,
-  "LINK": 12.688,
-  "DOT": 1.1522,
-  "LTC": 62.047,
-  "BCH": 348.45,
-  "XLM": 0.213636,
-  "UNI": 9.6918,
-  "ATOM": 1.7924,
-  "NEAR": 4.5379,
-  "APT": 0.8209,
-  "AAVE": 146.84,
-  "FIL": 1.0156,
-  "ALGO": 0.10939,
-  "ICP": 3.0916,
-  "ETC": 9.267,
-  "HBAR": 0.09519,
-  "ARB": 0.23417,
-  "OP": 0.13498,
-  "INJ": 8.039,
-  "SUI": 1.0055,
-  "SEI": 0.06018,
-  "GRT": 0.026669,
-  "SAND": 0.0437
+  "BTC": 83880.0,
+  "ETH": 2656.3,
+  "SOL": 113.96,
+  "XRP": 1.495,
+  "BNB": 763.75,
+  "DOGE": 0.09192,
+  "ADA": 0.23709,
+  "AVAX": 10.241,
+  "LINK": 12.204,
+  "DOT": 1.0978,
+  "LTC": 60.02,
+  "BCH": 350.46,
+  "XLM": 0.202719,
+  "UNI": 9.0933,
+  "ATOM": 1.7234,
+  "NEAR": 4.2917,
+  "APT": 0.768,
+  "AAVE": 138.55,
+  "FIL": 0.9374,
+  "ALGO": 0.10553,
+  "ICP": 2.914,
+  "ETC": 8.752,
+  "HBAR": 0.0899,
+  "ARB": 0.22288,
+  "OP": 0.1242,
+  "INJ": 7.552,
+  "SUI": 0.9542,
+  "SEI": 0.05906,
+  "GRT": 0.025902,
+  "SAND": 0.0413
  }
 }
