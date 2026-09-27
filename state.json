@@ -5806,6 +5806,10 @@
     {
      "t": 1790533699022,
      "v": 11124.54
+    },
+    {
+     "t": 1790547363129,
+     "v": 11003.14
     }
    ]
   },
@@ -11337,6 +11341,10 @@
     {
      "t": 1790533699022,
      "v": 8230.27
+    },
+    {
+     "t": 1790547363129,
+     "v": 8348.49
     }
    ]
   },
@@ -11377,36 +11385,45 @@
      "size": 1000.0,
      "stop": 0.1420866
     },
-    "AVAX": {
-     "side": "long",
-     "entry": 10.334,
-     "opened": "23.09. 20:26 UTC",
-     "size": 1000.0,
-     "stop": 10.784839999999999
-    },
-    "UNI": {
-     "side": "long",
-     "entry": 9.1881,
-     "opened": "23.09. 20:26 UTC",
-     "size": 1000.0,
-     "stop": 9.7193835
-    },
     "APT": {
      "side": "long",
      "entry": 0.7533,
      "opened": "23.09. 23:44 UTC",
      "size": 1000.0,
      "stop": 0.84148
-    },
-    "BCH": {
-     "side": "long",
-     "entry": 333.42,
-     "opened": "27.09. 01:31 UTC",
-     "size": 1000.0,
-     "stop": 333.42
     }
    },
    "trades": [
+    {
+     "time": "27.09. 22:15 UTC",
+     "sym": "UNI",
+     "side": "long",
+     "entry": 9.1881,
+     "exit": 9.619,
+     "pl": 45.1,
+     "plPct": 4.51,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "27.09. 22:15 UTC",
+     "sym": "BCH",
+     "side": "long",
+     "entry": 333.42,
+     "exit": 330.34,
+     "pl": -11.04,
+     "plPct": -1.1,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "27.09. 22:15 UTC",
+     "sym": "AVAX",
+     "side": "long",
+     "entry": 10.334,
+     "exit": 10.782,
+     "pl": 41.55,
+     "plPct": 4.16,
+     "why": "trailing stop — dobit zakljucana"
+    },
     {
      "time": "26.09. 19:55 UTC",
      "sym": "INJ",
@@ -13375,36 +13392,6 @@
      "exit": 8.267,
      "pl": 34.16,
      "plPct": 3.42,
-     "why": "rucno zatvoreno (TOMO, market)"
-    },
-    {
-     "time": "14.07. 19:45 UTC",
-     "sym": "BTC",
-     "side": "long",
-     "entry": 63047.14,
-     "exit": 64467.99,
-     "pl": 20.74,
-     "plPct": 2.07,
-     "why": "rucno zatvoreno (TOMO, market)"
-    },
-    {
-     "time": "14.07. 19:37 UTC",
-     "sym": "ETH",
-     "side": "long",
-     "entry": 1785.46,
-     "exit": 1875.96,
-     "pl": 48.89,
-     "plPct": 4.89,
-     "why": "rucno zatvoreno (TOMO, market)"
-    },
-    {
-     "time": "13.07. 18:22 UTC",
-     "sym": "DOGE",
-     "side": "short",
-     "entry": 0.07232,
-     "exit": 0.07099,
-     "pl": 16.59,
-     "plPct": 1.66,
      "why": "rucno zatvoreno (TOMO, market)"
     }
    ],
@@ -16844,6 +16831,10 @@
     {
      "t": 1790533699022,
      "v": 12673.52
+    },
+    {
+     "t": 1790547363129,
+     "v": 12567.9
     }
    ],
    "limits": {},
@@ -16863,43 +16854,46 @@
     "FIL": "long",
     "ETC": "long",
     "SAND": "long",
-    "INJ": "long"
+    "INJ": "long",
+    "AVAX": "long",
+    "BCH": "long",
+    "UNI": "long"
    },
    "capital": 10000.0,
-   "vault": 2148.6
+   "vault": 2224.21
   }
  },
- "last_run": "27.09. 18:28 UTC",
+ "last_run": "27.09. 22:16 UTC",
  "last_prices": {
-  "BTC": 84719.0,
-  "ETH": 2695.18,
-  "SOL": 122.69,
-  "XRP": 1.5314,
-  "BNB": 778.34,
-  "DOGE": 0.09765,
-  "ADA": 0.25627,
-  "AVAX": 10.997,
-  "LINK": 14.154,
-  "DOT": 1.263,
-  "LTC": 71.207,
-  "BCH": 336.26,
-  "XLM": 0.217731,
-  "UNI": 9.7584,
-  "ATOM": 1.8802,
-  "NEAR": 5.2977,
-  "APT": 0.8537,
-  "AAVE": 155.9,
-  "FIL": 1.1524,
-  "ALGO": 0.12002,
-  "ICP": 3.1944,
-  "ETC": 9.561,
-  "HBAR": 0.0948,
-  "ARB": 0.22606,
-  "OP": 0.14724,
-  "INJ": 7.869,
-  "SUI": 1.2723,
-  "SEI": 0.07496,
-  "GRT": 0.02975,
-  "SAND": 0.0449
+  "BTC": 84400.34,
+  "ETH": 2676.08,
+  "SOL": 121.84,
+  "XRP": 1.5091,
+  "BNB": 777.24,
+  "DOGE": 0.09597,
+  "ADA": 0.25244,
+  "AVAX": 10.782,
+  "LINK": 13.922,
+  "DOT": 1.2437,
+  "LTC": 70.724,
+  "BCH": 330.34,
+  "XLM": 0.21456,
+  "UNI": 9.619,
+  "ATOM": 1.8592,
+  "NEAR": 5.3851,
+  "APT": 0.8495,
+  "AAVE": 153.14,
+  "FIL": 1.1248,
+  "ALGO": 0.1169,
+  "ICP": 3.1257,
+  "ETC": 9.462,
+  "HBAR": 0.09363,
+  "ARB": 0.22228,
+  "OP": 0.14567,
+  "INJ": 7.71,
+  "SUI": 1.256,
+  "SEI": 0.0758,
+  "GRT": 0.033623,
+  "SAND": 0.0446
  }
 }
