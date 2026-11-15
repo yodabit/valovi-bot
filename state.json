@@ -2020,10 +2020,6 @@
    ],
    "eq": [
     {
-     "t": 1784355677073,
-     "v": 9836.08
-    },
-    {
      "t": 1784365330759,
      "v": 9848.34
     },
@@ -6018,6 +6014,10 @@
     {
      "t": 1794710676639,
      "v": 11783.96
+    },
+    {
+     "t": 1794740602771,
+     "v": 11742.36
     }
    ]
   },
@@ -6028,7 +6028,7 @@
      "side": "long",
      "entry": 7.024,
      "opened": "14.11. 23:01 UTC",
-     "stop": 6.46208
+     "stop": 7.024
     },
     "LINK": {
      "side": "long",
@@ -8040,10 +8040,6 @@
     }
    ],
    "eq": [
-    {
-     "t": 1784355677073,
-     "v": 9950.94
-    },
     {
      "t": 1784365330759,
      "v": 9938.79
@@ -12039,53 +12035,15 @@
     {
      "t": 1794710676639,
      "v": 7019.13
+    },
+    {
+     "t": 1794740602771,
+     "v": 7065.03
     }
    ]
   },
   "tomo": {
    "positions": {
-    "BNB": {
-     "side": "short",
-     "entry": 693.4,
-     "opened": "30.10. 01:05 UTC",
-     "size": 1000.0,
-     "stop": 593.8829999999999
-    },
-    "BCH": {
-     "side": "short",
-     "entry": 275.28,
-     "opened": "02.11. 16:17 UTC",
-     "size": 1000.0,
-     "stop": 206.18234999999999
-    },
-    "SOL": {
-     "side": "short",
-     "entry": 93.17,
-     "opened": "03.11. 15:15 UTC",
-     "size": 1000.0,
-     "stop": 71.63234999999999
-    },
-    "DOT": {
-     "side": "short",
-     "entry": 0.836,
-     "opened": "13.11. 01:52 UTC",
-     "size": 1000.0,
-     "stop": 0.7198424999999999
-    },
-    "HBAR": {
-     "side": "short",
-     "entry": 0.06347,
-     "opened": "13.11. 17:48 UTC",
-     "size": 1000.0,
-     "stop": 0.05755634999999999
-    },
-    "INJ": {
-     "side": "short",
-     "entry": 7.336,
-     "opened": "14.11. 19:13 UTC",
-     "size": 1000.0,
-     "stop": 7.039034999999999
-    },
     "LINK": {
      "side": "short",
      "entry": 9.05,
@@ -12107,15 +12065,127 @@
      "size": 1000.0,
      "stop": 5.205304
     },
-    "AAVE": {
+    "LTC": {
      "side": "short",
-     "entry": 102.61,
-     "opened": "15.11. 02:44 UTC",
+     "entry": 45.534,
+     "opened": "15.11. 11:03 UTC",
      "size": 1000.0,
-     "stop": 106.7144
+     "stop": 47.35536
+    },
+    "ALGO": {
+     "side": "short",
+     "entry": 0.08003,
+     "opened": "15.11. 11:03 UTC",
+     "size": 1000.0,
+     "stop": 0.0832312
+    },
+    "ETC": {
+     "side": "short",
+     "entry": 6.004,
+     "opened": "15.11. 11:03 UTC",
+     "size": 1000.0,
+     "stop": 6.24416
+    },
+    "OP": {
+     "side": "short",
+     "entry": 0.08235,
+     "opened": "15.11. 11:03 UTC",
+     "size": 1000.0,
+     "stop": 0.08564400000000001
+    },
+    "SUI": {
+     "side": "short",
+     "entry": 0.7315,
+     "opened": "15.11. 11:03 UTC",
+     "size": 1000.0,
+     "stop": 0.7607600000000001
+    },
+    "SEI": {
+     "side": "short",
+     "entry": 0.0393,
+     "opened": "15.11. 11:03 UTC",
+     "size": 1000.0,
+     "stop": 0.040872000000000006
+    },
+    "GRT": {
+     "side": "short",
+     "entry": 0.016729,
+     "opened": "15.11. 11:03 UTC",
+     "size": 1000.0,
+     "stop": 0.017398160000000003
     }
    },
    "trades": [
+    {
+     "time": "15.11. 11:03 UTC",
+     "sym": "INJ",
+     "side": "short",
+     "entry": 7.336,
+     "exit": 7.058,
+     "pl": 36.1,
+     "plPct": 3.61,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "15.11. 11:03 UTC",
+     "sym": "HBAR",
+     "side": "short",
+     "entry": 0.06347,
+     "exit": 0.05852,
+     "pl": 76.19,
+     "plPct": 7.62,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "15.11. 11:03 UTC",
+     "sym": "AAVE",
+     "side": "short",
+     "entry": 102.61,
+     "exit": 106.8,
+     "pl": -42.63,
+     "plPct": -4.26,
+     "why": "automatski stop"
+    },
+    {
+     "time": "15.11. 11:03 UTC",
+     "sym": "BCH",
+     "side": "short",
+     "entry": 275.28,
+     "exit": 208.48,
+     "pl": 240.86,
+     "plPct": 24.09,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "15.11. 11:03 UTC",
+     "sym": "DOT",
+     "side": "short",
+     "entry": 0.836,
+     "exit": 0.7339,
+     "pl": 120.33,
+     "plPct": 12.03,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "15.11. 11:03 UTC",
+     "sym": "BNB",
+     "side": "short",
+     "entry": 693.4,
+     "exit": 597.5,
+     "pl": 136.5,
+     "plPct": 13.65,
+     "why": "trailing stop — dobit zakljucana"
+    },
+    {
+     "time": "15.11. 11:03 UTC",
+     "sym": "SOL",
+     "side": "short",
+     "entry": 93.17,
+     "exit": 72.13,
+     "pl": 224.02,
+     "plPct": 22.4,
+     "why": "trailing stop — dobit zakljucana"
+    },
     {
      "time": "14.11. 14:13 UTC",
      "sym": "INJ",
@@ -14045,83 +14115,9 @@
      "pl": 95.71,
      "plPct": 9.57,
      "why": "trailing stop — dobit zakljucana"
-    },
-    {
-     "time": "22.08. 05:45 UTC",
-     "sym": "DOT",
-     "side": "long",
-     "entry": 0.8542,
-     "exit": 0.9547,
-     "pl": 115.85,
-     "plPct": 11.59,
-     "why": "trailing stop — dobit zakljucana"
-    },
-    {
-     "time": "22.08. 05:45 UTC",
-     "sym": "AVAX",
-     "side": "long",
-     "entry": 6.812,
-     "exit": 7.615,
-     "pl": 116.08,
-     "plPct": 11.61,
-     "why": "trailing stop — dobit zakljucana"
-    },
-    {
-     "time": "22.08. 05:45 UTC",
-     "sym": "ADA",
-     "side": "long",
-     "entry": 0.18951,
-     "exit": 0.2306,
-     "pl": 215.02,
-     "plPct": 21.5,
-     "why": "trailing stop — dobit zakljucana"
-    },
-    {
-     "time": "22.08. 05:45 UTC",
-     "sym": "BNB",
-     "side": "long",
-     "entry": 587.53,
-     "exit": 695.9,
-     "pl": 182.65,
-     "plPct": 18.27,
-     "why": "trailing stop — dobit zakljucana"
-    },
-    {
-     "time": "22.08. 05:45 UTC",
-     "sym": "SOL",
-     "side": "long",
-     "entry": 76.5,
-     "exit": 93.48,
-     "pl": 220.16,
-     "plPct": 22.02,
-     "why": "trailing stop — dobit zakljucana"
-    },
-    {
-     "time": "21.08. 19:40 UTC",
-     "sym": "ARB",
-     "side": "long",
-     "entry": 0.08912,
-     "exit": 0.0951,
-     "pl": 65.3,
-     "plPct": 6.53,
-     "why": "trailing stop — dobit zakljucana"
-    },
-    {
-     "time": "21.08. 05:50 UTC",
-     "sym": "SUI",
-     "side": "short",
-     "entry": 0.73,
-     "exit": 0.7725,
-     "pl": -60.02,
-     "plPct": -6.0,
-     "why": "automatski stop"
     }
    ],
    "eq": [
-    {
-     "t": 1784355677073,
-     "v": 10205.34
-    },
     {
      "t": 1784365330759,
      "v": 10208.69
@@ -18117,6 +18113,10 @@
     {
      "t": 1794710676639,
      "v": 11653.02
+    },
+    {
+     "t": 1794740602771,
+     "v": 11441.71
     }
    ],
    "limits": {},
@@ -18125,43 +18125,50 @@
     "ATOM": "short",
     "AVAX": "short",
     "NEAR": "short",
-    "ARB": "short"
+    "ARB": "short",
+    "SOL": "short",
+    "BNB": "short",
+    "DOT": "short",
+    "BCH": "short",
+    "AAVE": "short",
+    "HBAR": "short",
+    "INJ": "short"
    },
    "capital": 10000.0,
-   "vault": 711.44
+   "vault": 1502.81
   }
  },
- "last_run": "15.11. 02:44 UTC",
+ "last_run": "15.11. 11:03 UTC",
  "last_prices": {
-  "BTC": 64612.21,
-  "ETH": 1806.74,
-  "SOL": 70.81,
-  "XRP": 0.9488,
-  "BNB": 589.88,
-  "DOGE": 0.05821,
-  "ADA": 0.14906,
-  "AVAX": 7.095,
-  "LINK": 9.05,
-  "DOT": 0.7148,
-  "LTC": 44.664,
-  "BCH": 205.33,
-  "XLM": 0.136979,
-  "UNI": 5.0051,
-  "ATOM": 1.281,
-  "NEAR": 3.14,
-  "APT": 0.4547,
-  "AAVE": 102.61,
-  "FIL": 0.6101,
-  "ALGO": 0.0788,
-  "ICP": 2.1912,
-  "ETC": 5.882,
-  "HBAR": 0.05744,
-  "ARB": 0.13016,
-  "OP": 0.08114,
-  "INJ": 6.909,
-  "SUI": 0.7155,
-  "SEI": 0.03834,
-  "GRT": 0.016454,
-  "SAND": 0.0359
+  "BTC": 65464.33,
+  "ETH": 1829.44,
+  "SOL": 72.13,
+  "XRP": 0.9625,
+  "BNB": 597.5,
+  "DOGE": 0.05899,
+  "ADA": 0.15447,
+  "AVAX": 7.266,
+  "LINK": 9.245,
+  "DOT": 0.7339,
+  "LTC": 45.534,
+  "BCH": 208.48,
+  "XLM": 0.13902,
+  "UNI": 5.1285,
+  "ATOM": 1.3034,
+  "NEAR": 3.1813,
+  "APT": 0.4598,
+  "AAVE": 106.8,
+  "FIL": 0.624,
+  "ALGO": 0.08003,
+  "ICP": 2.219,
+  "ETC": 6.004,
+  "HBAR": 0.05852,
+  "ARB": 0.13522,
+  "OP": 0.08235,
+  "INJ": 7.058,
+  "SUI": 0.7315,
+  "SEI": 0.0393,
+  "GRT": 0.016729,
+  "SAND": 0.0365
  }
 }
